@@ -1,5 +1,6 @@
 import bcrypt from 'bcryptjs';
 import { z } from 'zod';
+import { type User } from '@prisma/client';
 import { exhaustive } from 'exhaustive';
 
 import { E, O } from '@shared/effect';
@@ -31,6 +32,8 @@ class EmailNotAvailable {
 
 class UserCreated {
   tag: 'UserCreated';
+
+  constructor(readonly user: User) {}
 }
 
 export class CreateUserService {
@@ -47,12 +50,12 @@ export class CreateUserService {
       return E.left(new EmailNotAvailable(email));
     }
 
-    await this.usersRepository.create({
+    const user = await this.usersRepository.create({
       name,
       email,
       passwordHash: await bcrypt.hash(password, SALT_ROUNDS),
     });
 
-    return E.right(new UserCreated());
+    return E.right(new UserCreated(user));
   }
 }
