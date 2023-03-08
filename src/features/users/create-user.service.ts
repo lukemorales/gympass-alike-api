@@ -8,7 +8,7 @@ import { ENV } from '@shared/env';
 
 import { type UsersRepository } from './repositories/users.repository';
 
-const SALT_ROUNDS = exhaustive(ENV.NODE_ENV, {
+export const ENCRYPTION_SALT_ROUNDS = exhaustive(ENV.NODE_ENV, {
   test: () => 1,
   development: () => 6,
   production: () => 10,
@@ -53,7 +53,7 @@ export class CreateUserService {
     const user = await this.usersRepository.create({
       name,
       email,
-      passwordHash: await bcrypt.hash(password, SALT_ROUNDS),
+      passwordHash: await bcrypt.hash(password, ENCRYPTION_SALT_ROUNDS),
     });
 
     return E.right(new UserCreated(user));

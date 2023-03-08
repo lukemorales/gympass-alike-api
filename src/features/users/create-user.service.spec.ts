@@ -6,13 +6,13 @@ import { E } from '@shared/effect';
 import { CreateUserService } from './create-user.service';
 import { UsersInMemoryRepository } from './repositories/users.in-memory.repository';
 
-describe('createUserService', () => {
+describe('CreateUserService', () => {
   let usersRepository: UsersInMemoryRepository;
-  let createUserService: CreateUserService;
+  let sut: CreateUserService;
 
   beforeEach(() => {
     usersRepository = new UsersInMemoryRepository();
-    createUserService = new CreateUserService(usersRepository);
+    sut = new CreateUserService(usersRepository);
   });
 
   describe('execute', () => {
@@ -23,7 +23,7 @@ describe('createUserService', () => {
         passwordHash: 'dummy-password',
       });
 
-      const result = await createUserService.execute({
+      const result = await sut.execute({
         name: 'John Doe',
         email: 'john@doe.com',
         password: 'dummy-password',
@@ -39,7 +39,7 @@ describe('createUserService', () => {
     });
 
     it('creates a user', async () => {
-      const result = await createUserService.execute({
+      const result = await sut.execute({
         name: 'John Doe',
         email: 'john@doe.com',
         password: 'dummy-password',
@@ -60,7 +60,7 @@ describe('createUserService', () => {
     it('hashes the user password on account creation', async () => {
       const password = 'dummy-password';
 
-      const result = await createUserService.execute({
+      const result = await sut.execute({
         name: 'John Doe',
         email: 'john@doe.com',
         password,
