@@ -1,9 +1,17 @@
 import bcrypt from 'bcryptjs';
 import { z } from 'zod';
+import { exhaustive } from 'exhaustive';
 
 import { E, O } from '@shared/effect';
+import { ENV } from '@shared/env';
 
 import { type UsersRepository } from './repositories/users.repository';
+
+const SALT_ROUNDS = exhaustive(ENV.NODE_ENV, {
+  test: () => 1,
+  development: () => 6,
+  production: () => 10,
+});
 
 export const createUserPayload = z.object({
   name: z.string().min(1),
@@ -42,7 +50,7 @@ export class CreateUserService {
     await this.usersRepository.create({
       name,
       email,
-      passwordHash: await bcrypt.hash(password, 6),
+      passwordHash: await bcrypt.hash(password, SALT_ROUNDS),
     });
 
     return E.right(new UserCreated());
