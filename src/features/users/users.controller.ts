@@ -4,16 +4,14 @@ import { pipe } from '@effect/data/Function';
 
 import { E } from '@shared/effect';
 
-import { createUserPayload, CreateUserService } from './create-user.service';
-import { UsersPrismaRepository } from './repositories/users.prisma.repository';
+import { createUserPayload } from './create-user.service';
+import { makeCreateUserService } from './factories';
 
 export async function usersController(app: FastifyInstance) {
   app.post('/', async (request, reply) => {
     const payload = pipe(request.body, createUserPayload.parse);
 
-    const createUserService = new CreateUserService(
-      new UsersPrismaRepository(),
-    );
+    const createUserService = makeCreateUserService();
 
     const result = await createUserService.execute(payload);
 
