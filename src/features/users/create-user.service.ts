@@ -25,13 +25,13 @@ type CreateUserPayload = z.infer<typeof createUserPayload>;
 export type CreateUserError = EmailNotAvailable;
 
 class EmailNotAvailable {
-  tag: 'EmailNotAvailable';
+  readonly tag: 'EmailNotAvailable';
 
   constructor(readonly email: string) {}
 }
 
 class UserCreated {
-  tag: 'UserCreated';
+  readonly tag: 'UserCreated';
 
   constructor(readonly user: User) {}
 }

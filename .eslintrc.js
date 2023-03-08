@@ -53,7 +53,7 @@ module.exports = {
     camelcase: "off",
     "class-methods-use-this": "off",
     "implicit-arrow-linebreak": "off",
-    'max-classes-per-file': "off",
+    "max-classes-per-file": "off",
     "no-await-in-loop": "off",
     "no-console": ["warn", { allow: ["warn", "error"] }],
     "no-plusplus": ["error", { allowForLoopAfterthoughts: true }],
@@ -458,4 +458,12 @@ module.exports = {
     "@typescript-eslint/switch-exhaustiveness-check": "warn",
     "@typescript-eslint/unified-signatures": "warn",
   },
+  overrides: [
+    {
+      files: "**/*.spec.ts",
+      rules: {
+        "@typescript-eslint/no-unsafe-assignment": "off",
+      },
+    },
+  ],
 };

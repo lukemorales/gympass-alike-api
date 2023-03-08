@@ -5,10 +5,9 @@ import { E } from '@shared/effect';
 
 import { CreateUserService } from './create-user.service';
 import { UsersInMemoryRepository } from './repositories/users.in-memory.repository';
-import { type UsersRepository } from './repositories/users.repository';
 
 describe('createUserService', () => {
-  let usersRepository: UsersRepository;
+  let usersRepository: UsersInMemoryRepository;
   let createUserService: CreateUserService;
 
   beforeEach(() => {
@@ -17,7 +16,29 @@ describe('createUserService', () => {
   });
 
   describe('execute', () => {
-    it('hashes the user password on account creation', async () => {
+    it('does not create a user if a record with the same email exists', async () => {
+      await usersRepository.create({
+        name: 'John Doe',
+        email: 'john@doe.com',
+        passwordHash: 'dummy-password',
+      });
+
+      const result = await createUserService.execute({
+        name: 'John Doe',
+        email: 'john@doe.com',
+        password: 'dummy-password',
+      });
+
+      assert.ok(E.isLeft(result));
+
+      expect(result.left).toMatchInlineSnapshot(`
+        EmailNotAvailable {
+          "email": "john@doe.com",
+        }
+      `);
+    });
+
+    it('creates a user', async () => {
       const result = await createUserService.execute({
         name: 'John Doe',
         email: 'john@doe.com',
@@ -28,10 +49,31 @@ describe('createUserService', () => {
 
       const { user } = result.right;
 
-      expect(user.password_hash).not.toBe('dummy-password');
+      expect(user).toMatchObject({
+        id: expect.any(String),
+        name: 'John Doe',
+        email: 'john@doe.com',
+        password_hash: expect.any(String),
+      });
+    });
+
+    it('hashes the user password on account creation', async () => {
+      const password = 'dummy-password';
+
+      const result = await createUserService.execute({
+        name: 'John Doe',
+        email: 'john@doe.com',
+        password,
+      });
+
+      assert.ok(E.isRight(result));
+
+      const { user } = result.right;
+
+      expect(user.password_hash).not.toBe(password);
 
       const isPasswordHashedCorrectly = await bcrypt.compare(
-        'dummy-password',
+        password,
         user.password_hash,
       );
 
