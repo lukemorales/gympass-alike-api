@@ -1,0 +1,12 @@
+version: '3'
+name: gympass-alike
+
+services:
+  gympass-postgres:
+    image: bitnami/postgresql
+    ports:
+      - 5432:5432
+    environment:
+      - POSTGRESQL_USERNAME=docker
+      - POSTGRESQL_PASSWORD=docker
+      - POSTGRESQL_DATABASE=gympass-api
