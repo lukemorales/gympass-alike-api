@@ -3,7 +3,7 @@ import { z } from 'zod';
 
 import { E, O } from '@shared/effect';
 
-import { UsersPrismaRepository } from './repositories/users.prisma.repository';
+import { type UsersRepository } from './repositories/users.repository';
 
 export const createUserPayload = z.object({
   name: z.string().min(1),
@@ -25,24 +25,26 @@ class UserCreated {
   tag: 'UserCreated';
 }
 
-export async function createUserService({
-  name,
-  email,
-  password,
-}: CreateUserPayload): Promise<E.Either<CreateUserError, UserCreated>> {
-  const usersRepository = new UsersPrismaRepository();
+export class CreateUserService {
+  constructor(private readonly usersRepository: UsersRepository) {}
 
-  const existingUser = await usersRepository.findByEmail(email);
-
-  if (O.isSome(existingUser)) {
-    return E.left(new EmailNotAvailable(email));
-  }
-
-  await usersRepository.create({
+  async execute({
     name,
     email,
-    passwordHash: await bcrypt.hash(password, 6),
-  });
+    password,
+  }: CreateUserPayload): Promise<E.Either<CreateUserError, UserCreated>> {
+    const existingUser = await this.usersRepository.findByEmail(email);
 
-  return E.right(new UserCreated());
+    if (O.isSome(existingUser)) {
+      return E.left(new EmailNotAvailable(email));
+    }
+
+    await this.usersRepository.create({
+      name,
+      email,
+      passwordHash: await bcrypt.hash(password, 6),
+    });
+
+    return E.right(new UserCreated());
+  }
 }

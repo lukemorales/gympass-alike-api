@@ -3,25 +3,19 @@ import { ulid } from 'ulid';
 import { O, pipe } from '@shared/effect';
 import { prisma } from '@shared/prisma';
 
+import { type UsersRepository } from './users.repository';
+
 type CreateUserOptions = {
   name: string;
   email: string;
   passwordHash: string;
 };
 
-export class UsersPrismaRepository {
+export class UsersPrismaRepository implements UsersRepository {
   private readonly repository: (typeof prisma)['user'];
 
   constructor() {
     this.repository = prisma.user;
-  }
-
-  async findByEmail(email: string) {
-    const user = await this.repository.findUnique({
-      where: { email },
-    });
-
-    return pipe(user, O.fromNullable);
   }
 
   async create({ name, email, passwordHash }: CreateUserOptions) {
@@ -35,5 +29,13 @@ export class UsersPrismaRepository {
     });
 
     return user;
+  }
+
+  async findByEmail(email: string) {
+    const user = await this.repository.findUnique({
+      where: { email },
+    });
+
+    return pipe(user, O.fromNullable);
   }
 }
