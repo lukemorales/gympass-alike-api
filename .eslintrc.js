@@ -53,6 +53,7 @@ module.exports = {
     camelcase: "off",
     "class-methods-use-this": "off",
     "implicit-arrow-linebreak": "off",
+    'max-classes-per-file': "off",
     "no-await-in-loop": "off",
     "no-console": ["warn", { allow: ["warn", "error"] }],
     "no-plusplus": ["error", { allowForLoopAfterthoughts: true }],
@@ -448,6 +449,7 @@ module.exports = {
     "@typescript-eslint/prefer-return-this-type": "error",
     "@typescript-eslint/prefer-string-starts-ends-with": "error",
     "@typescript-eslint/prefer-ts-expect-error": "error",
+    "@typescript-eslint/require-await": "off",
     "@typescript-eslint/require-array-sort-compare": "error",
     "@typescript-eslint/restrict-plus-operands": [
       "error",
