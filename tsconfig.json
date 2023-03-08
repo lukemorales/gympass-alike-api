@@ -33,8 +33,8 @@
     "paths": {
       "@features/*": ["./src/features/*"],
       "@shared/*": ["./src/shared/*"]
-    }
-    // "types": ["vitest/globals"]
+    },
+    "types": ["vitest/globals"]
   },
   "exclude": [
     "node_modules"
