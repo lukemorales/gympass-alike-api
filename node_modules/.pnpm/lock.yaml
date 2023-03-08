@@ -5,6 +5,7 @@ specifiers:
   '@types/node': ^18.14.6
   '@typescript-eslint/eslint-plugin': ^5.52.0
   '@typescript-eslint/parser': ^5.52.0
+  dotenv: ^16.0.3
   eslint: ^8.34.0
   eslint-config-airbnb-base: ^15.0.0
   eslint-config-prettier: ^8.6.0
@@ -20,10 +21,15 @@ specifiers:
   tsup: ^6.6.3
   tsx: ^3.12.3
   typescript: ^4.9.5
+  zod: ^3.21.4
+  zod-validation-error: ^1.0.1
 
 dependencies:
   '@effect/data': 0.3.3
+  dotenv: 16.0.3
   fastify: 4.14.1
+  zod: 3.21.4
+  zod-validation-error: 1.0.1_zod@3.21.4
 
 devDependencies:
   '@types/node': 18.14.6
@@ -837,6 +843,11 @@ packages:
     dependencies:
       esutils: 2.0.3
     dev: true
+
+  /dotenv/16.0.3:
+    resolution: {integrity: sha512-7GO6HghkA5fYG9TYnNxi14/7K9f5occMlp3zXAuSxn7CKCxt9xbNWG7yF8hTCSUchlfWSe3uLmlPfigevRItzQ==}
+    engines: {node: '>=12'}
+    dev: false
 
   /enhanced-resolve/5.12.0:
     resolution: {integrity: sha512-QHTXI/sZQmko1cbDoNAa3mJ5qhWUUNAq3vR0/YiD379fWQrcfuoX1+HW2S0MTt7XmoPLapdaDKUtelUSPic7hQ==}
@@ -2677,3 +2688,16 @@ packages:
     resolution: {integrity: sha512-rVksvsnNCdJ/ohGc6xgPwyN8eheCxsiLM8mxuE/t/mOVqJewPuO1miLpTHQiRgTKCLexL4MeAFVagts7HmNZ2Q==}
     engines: {node: '>=10'}
     dev: true
+
+  /zod-validation-error/1.0.1_zod@3.21.4:
+    resolution: {integrity: sha512-QRk2AtHLJg8sCZAbEjXSs7E0n4/mSdX5caoh6eOUvDSdcIQz03i0xoNN1Qx6UZT+ADVHRK6+ZXRtldzW6nnltA==}
+    engines: {node: ^14.17 || >=16.0.0}
+    peerDependencies:
+      zod: ^3.18.0
+    dependencies:
+      zod: 3.21.4
+    dev: false
+
+  /zod/3.21.4:
+    resolution: {integrity: sha512-m46AKbrzKVzOzs/DZgVnG5H55N1sv1M8qZU3A8RIKbs3mrACDNeIOeilDymVb2HdmP8uwshOCF4uJ8uM9rCqJw==}
+    dev: false
