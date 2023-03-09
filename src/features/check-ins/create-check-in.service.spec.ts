@@ -5,7 +5,7 @@ import { Clock } from '@features/clock';
 import { E } from '@shared/effect';
 import { GymsInMemoryRepository } from '@features/gyms';
 
-import { CreateCheckInService } from './create-checkin.service';
+import { CreateCheckInService } from './create-check-in.service';
 import { CheckInsInMemoryRepository } from './repositories';
 
 describe('CreateCheckInService', () => {
