@@ -29,6 +29,13 @@ export class UsersInMemoryRepository implements UsersRepository {
     return user;
   }
 
+  async findById(id: string) {
+    return pipe(
+      this.repository,
+      A.findFirst((user) => user.id === id),
+    );
+  }
+
   async findByEmail(email: string) {
     return pipe(
       this.repository,

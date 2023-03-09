@@ -34,6 +34,7 @@ describe('CreateUserService', () => {
       expect(result.left).toMatchInlineSnapshot(`
         EmailNotAvailable {
           "email": "john@doe.com",
+          "tag": "EmailNotAvailable",
         }
       `);
     });

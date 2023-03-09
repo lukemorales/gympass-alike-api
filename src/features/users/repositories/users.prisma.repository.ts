@@ -31,6 +31,14 @@ export class UsersPrismaRepository implements UsersRepository {
     return user;
   }
 
+  async findById(id: string) {
+    const user = await this.repository.findUnique({
+      where: { id },
+    });
+
+    return pipe(user, O.fromNullable);
+  }
+
   async findByEmail(email: string) {
     const user = await this.repository.findUnique({
       where: { email },

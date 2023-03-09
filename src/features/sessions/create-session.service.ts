@@ -15,11 +15,11 @@ export type CreateSessionPayload = z.infer<typeof createSessionPayload>;
 export type CreateSessionError = InvalidCredentials;
 
 class InvalidCredentials {
-  readonly tag: 'InvalidCredentials';
+  readonly tag = 'InvalidCredentials';
 }
 
 class AuthenticatedUser {
-  readonly tag: 'AuthenticatedUser';
+  readonly tag = 'AuthenticatedUser';
 
   constructor(readonly user: User) {}
 }

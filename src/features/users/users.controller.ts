@@ -5,9 +5,29 @@ import { pipe } from '@effect/data/Function';
 import { E } from '@shared/effect';
 
 import { createUserPayload } from './create-user.service';
-import { makeCreateUserService } from './factories';
+import { makeCreateUserService, makeGetUserService } from './factories';
+import { getUserPayload } from './get-user.service';
 
 export async function usersController(app: FastifyInstance) {
+  app.post('/:id', async (request, reply) => {
+    const payload = pipe(request.params, getUserPayload.parse);
+
+    const getUserService = makeGetUserService();
+
+    const result = await getUserService.execute(payload);
+
+    return pipe(
+      result,
+      E.match(
+        (error) =>
+          reply.status(404).send({
+            message: `User (${error.resourceId}) not found`,
+          }),
+        (user) => reply.status(200).send({ user }),
+      ),
+    );
+  });
+
   app.post('/', async (request, reply) => {
     const payload = pipe(request.body, createUserPayload.parse);
 

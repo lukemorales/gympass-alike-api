@@ -7,20 +7,20 @@ import {
   UsersInMemoryRepository,
 } from '@features/users';
 
-import { CreateSessionService } from './create-session.service';
+import { GetUserService } from './get-user.service';
 
-describe('CreateSessionService', () => {
+describe('GetUserService', () => {
   let usersRepository: UsersInMemoryRepository;
-  let sut: CreateSessionService;
+  let sut: GetUserService;
 
   beforeEach(() => {
     usersRepository = new UsersInMemoryRepository();
-    sut = new CreateSessionService(usersRepository);
+    sut = new GetUserService(usersRepository);
   });
 
   describe('execute', () => {
     const performSetup = async () => {
-      await usersRepository.create({
+      const user = await usersRepository.create({
         name: 'John Doe',
         email: 'john@doe.com',
         passwordHash: await bcrypt.hash(
@@ -28,46 +28,30 @@ describe('CreateSessionService', () => {
           ENCRYPTION_SALT_ROUNDS,
         ),
       });
+
+      return user;
     };
 
-    it('fails with an "InvalidCredentials" error if user does not exist', async () => {
+    it('fails with an "ResourceNotFound" error if user does not exist', async () => {
       const result = await sut.execute({
-        email: 'john@doe.com',
-        password: 'dummy-password',
+        id: 'invalid-id',
       });
 
       assert.ok(E.isLeft(result));
 
       expect(result.left).toMatchInlineSnapshot(`
-        InvalidCredentials {
-          "tag": "InvalidCredentials",
+        ResourceNotFound {
+          "resourceId": "invalid-id",
+          "tag": "ResourceNotFound",
         }
       `);
     });
 
-    it('fails with an "InvalidCredentials" error if passwords does no match', async () => {
-      await performSetup();
+    it('returns the user', async () => {
+      const { id } = await performSetup();
 
       const result = await sut.execute({
-        email: 'john@doe.com',
-        password: '123456',
-      });
-
-      assert.ok(E.isLeft(result));
-
-      expect(result.left).toMatchInlineSnapshot(`
-        InvalidCredentials {
-          "tag": "InvalidCredentials",
-        }
-      `);
-    });
-
-    it('authenticates the user', async () => {
-      await performSetup();
-
-      const result = await sut.execute({
-        email: 'john@doe.com',
-        password: 'dummy-password',
+        id,
       });
 
       assert.ok(E.isRight(result));
