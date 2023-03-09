@@ -2,10 +2,12 @@ import { ulid } from 'ulid';
 import { type PrismaClient } from '@prisma/client';
 
 import { prisma } from '@shared/prisma';
+import { O, pipe } from '@shared/effect';
 
 import {
   type CreateCheckInOptions,
   type CheckInsRepository,
+  type FindByMembershipAndDateOptions,
 } from './check-ins.repository';
 
 export class CheckInsPrismaRepository implements CheckInsRepository {
@@ -25,5 +27,21 @@ export class CheckInsPrismaRepository implements CheckInsRepository {
     });
 
     return checkIn;
+  }
+
+  async findByMembershipAndDate({
+    userId,
+    gymId,
+    date,
+  }: FindByMembershipAndDateOptions) {
+    const checkIn = await this.repository.findFirst({
+      where: {
+        user_id: userId,
+        gym_id: gymId,
+        created_at: date,
+      },
+    });
+
+    return pipe(checkIn, O.fromNullable);
   }
 }
