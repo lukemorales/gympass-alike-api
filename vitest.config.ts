@@ -12,11 +12,16 @@ export default defineConfig({
     exclude: [
       '**/node_modules/**',
       '**/dist/**',
-      'src/**/types.ts',
-      'src/vitest-setup.ts',
+      '**/types.ts',
+      'tests/setup-tests.ts',
     ],
     coverage: {
-      exclude: ['src/vitest-setup.ts', 'src/**/*.spec.ts', 'src/**/types.ts'],
+      exclude: [
+        'src/tests/setup-tests.ts',
+        'src/**/*.spec.ts',
+        'src/**/types.ts',
+      ],
     },
+    setupFiles: ['tests/setup-tests.ts'],
   },
 });
