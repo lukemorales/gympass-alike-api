@@ -44,4 +44,8 @@ export class CheckInsPrismaRepository implements CheckInsRepository {
 
     return pipe(checkIn, O.fromNullable);
   }
+
+  async findManyByUserId(userId: string) {
+    return this.repository.findMany({ where: { user_id: userId } });
+  }
 }

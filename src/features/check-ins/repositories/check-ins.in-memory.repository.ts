@@ -51,4 +51,11 @@ export class CheckInsInMemoryRepository implements CheckInsRepository {
       }),
     );
   }
+
+  async findManyByUserId(userId: string) {
+    return pipe(
+      this.repository,
+      A.filter((checkIn) => checkIn.user_id === userId),
+    );
+  }
 }

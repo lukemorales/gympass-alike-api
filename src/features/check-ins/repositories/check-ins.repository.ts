@@ -18,4 +18,5 @@ export interface CheckInsRepository {
   findByMembershipAndDate: (
     payload: FindByMembershipAndDateOptions,
   ) => Promise<O.Option<CheckIn>>;
+  findManyByUserId: (userId: string) => Promise<CheckIn[]>;
 }
