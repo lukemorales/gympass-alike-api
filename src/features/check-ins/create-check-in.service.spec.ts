@@ -1,5 +1,5 @@
 import assert from 'assert';
-import { Decimal } from '@prisma/client/runtime/library';
+import { type Gym } from '@prisma/client';
 
 import { Clock } from '@features/clock';
 import { E } from '@shared/effect';
@@ -28,33 +28,29 @@ describe('CreateCheckInService', () => {
   });
 
   describe('execute', () => {
-    const performSetup = async () => {
-      gymsRepository.repository.push(
-        {
-          id: 'gym_01',
+    let gym01: Gym;
+    let gym02: Gym;
+
+    const performSetup = async () =>
+      Promise.all([
+        gymsRepository.create({
           name: 'Maromba Gym',
           phone: null,
           description: '',
-          latitude: new Decimal(0.987654321),
-          longitude: new Decimal(-0.987654321),
-          created_at: new Date(),
-          updated_at: new Date(),
-        },
-        {
-          id: 'gym_02',
+          latitude: 0.987654321,
+          longitude: -0.987654321,
+        }),
+        gymsRepository.create({
           name: 'Super Maromba Gym',
           phone: null,
           description: '',
-          latitude: new Decimal(0.123456789),
-          longitude: new Decimal(-0.123456789),
-          created_at: new Date(),
-          updated_at: new Date(),
-        },
-      );
-    };
+          latitude: 0.123456789,
+          longitude: -0.123456789,
+        }),
+      ]);
 
     beforeEach(async () => {
-      await performSetup();
+      [gym01, gym02] = await performSetup();
     });
 
     it('fails with a "ResourceNotFound" error if the gym does not exist', async () => {
@@ -69,20 +65,19 @@ describe('CreateCheckInService', () => {
 
       assert.ok(E.isLeft(result));
 
-      expect(result.left).toMatchInlineSnapshot(`
-        ResourceNotFound {
-          "resourceId": "gym_invalid_id",
-          "tag": "ResourceNotFound",
-        }
-      `);
+      expect(result.left).toMatchObject({
+        tag: 'ResourceNotFound',
+        resourceId: 'gym_invalid_id',
+      });
     });
 
     it('fails with a "DuplicateCheckInNotAllowed" error if a previous check-in exists for the same day in the same gym', async () => {
-      vi.setSystemTime(new Date(2023, 2, 10, 8, 0, 0, 0));
+      const date = new Date(2023, 2, 10, 8, 0, 0, 0);
+      vi.setSystemTime(date);
 
       await sut.execute({
         userId: 'user_01',
-        gymId: 'gym_01',
+        gymId: gym01.id,
         coords: {
           lat: 0.987654321,
           long: -0.987654321,
@@ -91,7 +86,7 @@ describe('CreateCheckInService', () => {
 
       const result = await sut.execute({
         userId: 'user_01',
-        gymId: 'gym_01',
+        gymId: gym01.id,
         coords: {
           lat: 0.987654321,
           long: -0.987654321,
@@ -100,19 +95,17 @@ describe('CreateCheckInService', () => {
 
       assert.ok(E.isLeft(result));
 
-      expect(result.left).toMatchInlineSnapshot(`
-        DuplicateCheckInNotAllowed {
-          "date": 2023-03-10T11:00:00.000Z,
-          "gymId": "gym_01",
-          "tag": "DuplicateCheckInNotAllowed",
-        }
-      `);
+      expect(result.left).toMatchObject({
+        tag: 'DuplicateCheckInNotAllowed',
+        date,
+        gymId: gym01.id,
+      });
     });
 
     it('fails with a "NotOnLocation" error if distance from gym is greater than allowed', async () => {
       const result = await sut.execute({
         userId: 'user_01',
-        gymId: 'gym_01',
+        gymId: gym01.id,
         coords: {
           lat: 0.917257389,
           long: -0.987654321,
@@ -121,18 +114,16 @@ describe('CreateCheckInService', () => {
 
       assert.ok(E.isLeft(result));
 
-      expect(result.left).toMatchInlineSnapshot(`
-        NotOnLocation {
-          "distance": 7.827405088086411,
-          "tag": "NotOnLocation",
-        }
-      `);
+      expect(result.left).toMatchObject({
+        tag: 'NotOnLocation',
+        distance: 7.827405088086411,
+      });
     });
 
     it('creates a check-in', async () => {
       const result = await sut.execute({
         userId: 'user_01',
-        gymId: 'gym_01',
+        gymId: gym01.id,
         coords: {
           lat: 0.987654321,
           long: -0.987654321,
@@ -146,7 +137,7 @@ describe('CreateCheckInService', () => {
       expect(checkIn).toMatchObject({
         id: expect.any(String),
         user_id: 'user_01',
-        gym_id: 'gym_01',
+        gym_id: gym01.id,
       });
     });
 
@@ -155,7 +146,7 @@ describe('CreateCheckInService', () => {
 
       await sut.execute({
         userId: 'user_01',
-        gymId: 'gym_01',
+        gymId: gym01.id,
         coords: {
           lat: 0.987654321,
           long: -0.987654321,
@@ -164,7 +155,7 @@ describe('CreateCheckInService', () => {
 
       const result = await sut.execute({
         userId: 'user_01',
-        gymId: 'gym_02',
+        gymId: gym02.id,
         coords: {
           lat: 0.123456789,
           long: -0.123456789,
@@ -178,7 +169,7 @@ describe('CreateCheckInService', () => {
       expect(checkIn).toMatchObject({
         id: expect.any(String),
         user_id: 'user_01',
-        gym_id: 'gym_02',
+        gym_id: gym02.id,
       });
     });
   });
