@@ -1,4 +1,5 @@
 import { ulid } from 'ulid';
+import { type PrismaClient } from '@prisma/client';
 
 import { O, pipe } from '@shared/effect';
 import { prisma } from '@shared/prisma';
@@ -12,7 +13,7 @@ type CreateUserOptions = {
 };
 
 export class UsersPrismaRepository implements UsersRepository {
-  private readonly repository: (typeof prisma)['user'];
+  private readonly repository: PrismaClient['user'];
 
   constructor() {
     this.repository = prisma.user;

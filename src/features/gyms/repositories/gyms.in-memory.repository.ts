@@ -8,12 +8,12 @@ import { type CreateGymOptions, type GymsRepository } from './gyms.repository';
 export class GymsInMemoryRepository implements GymsRepository {
   readonly repository: Gym[] = [];
 
-  async create(payload: CreateGymOptions) {
+  async create(options: CreateGymOptions) {
     const gym: Gym = {
-      ...payload,
+      ...options,
       id: ulid(),
-      latitude: new Prisma.Decimal(payload.latitude),
-      longitude: new Prisma.Decimal(payload.longitude),
+      latitude: new Prisma.Decimal(options.latitude),
+      longitude: new Prisma.Decimal(options.longitude),
       created_at: new Date(),
       updated_at: new Date(),
     };

@@ -11,6 +11,6 @@ export type CreateGymOptions = {
 };
 
 export interface GymsRepository {
-  create: (payload: CreateGymOptions) => Promise<Gym>;
+  create: (options: CreateGymOptions) => Promise<Gym>;
   findById: (id: string) => Promise<O.Option<Gym>>;
 }

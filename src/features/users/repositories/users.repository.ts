@@ -9,7 +9,7 @@ export type CreateUserOptions = {
 };
 
 export interface UsersRepository {
-  create: (payload: CreateUserOptions) => Promise<User>;
+  create: (options: CreateUserOptions) => Promise<User>;
   findById: (id: string) => Promise<O.Option<User>>;
   findByEmail: (email: string) => Promise<O.Option<User>>;
 }
