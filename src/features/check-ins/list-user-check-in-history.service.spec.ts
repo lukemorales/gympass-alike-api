@@ -17,7 +17,7 @@ describe('ListUserCheckInHistoryService', () => {
   });
 
   describe('execute', () => {
-    it('returns the list of check-ins for a specific user', async () => {
+    it('returns the check-in history for a specific user', async () => {
       await Promise.all([
         checkInsRepository.create({
           gymId: 'gym_01',
@@ -41,13 +41,20 @@ describe('ListUserCheckInHistoryService', () => {
         }),
       ]);
 
-      const checkins = await sut.execute({
+      const result = await sut.execute({
         userId: 'user_01',
       });
 
-      expect(checkins).toBeArrayOfSize(3);
+      expect(result).toEqual({
+        items: expect.any(Array),
+        metadata: {
+          cursor: null,
+        },
+      });
 
-      expect(checkins).toIncludeAllMembers([
+      expect(result.items).toBeArrayOfSize(3);
+
+      expect(result.items).toIncludeAllMembers([
         expect.objectContaining({
           user_id: 'user_01',
         }),
@@ -59,11 +66,65 @@ describe('ListUserCheckInHistoryService', () => {
         }),
       ]);
 
-      expect(checkins).not.toIncludeAnyMembers([
+      expect(result.items).not.toIncludeAnyMembers([
         expect.objectContaining({
           user_id: 'user_02',
         }),
       ]);
+    });
+
+    it('returns a paginated check-in history for a specific user', async () => {
+      const first = await checkInsRepository.create({
+        gymId: `gym_00`,
+        userId: 'user_01',
+      });
+
+      for (let i = 1; i < 20; i++) {
+        await checkInsRepository.create({
+          gymId: `gym_${i.toString().padStart(2, '0')}`,
+          userId: 'user_01',
+        });
+      }
+
+      const middle = await checkInsRepository.create({
+        gymId: `gym_20`,
+        userId: 'user_01',
+      });
+
+      for (let i = 21; i <= 25; i++) {
+        await checkInsRepository.create({
+          gymId: `gym_${i.toString().padStart(2, '0')}`,
+          userId: 'user_01',
+        });
+      }
+
+      const firstResult = await sut.execute({
+        userId: 'user_01',
+        cursor: first.id,
+      });
+
+      expect(firstResult).toEqual({
+        items: expect.any(Array),
+        metadata: {
+          cursor: middle.id,
+        },
+      });
+
+      expect(firstResult.items).toBeArrayOfSize(20);
+
+      const secondResult = await sut.execute({
+        userId: 'user_01',
+        cursor: firstResult.metadata.cursor,
+      });
+
+      expect(secondResult).toEqual({
+        items: expect.any(Array),
+        metadata: {
+          cursor: null,
+        },
+      });
+
+      expect(secondResult.items).toBeArrayOfSize(5);
     });
   });
 });

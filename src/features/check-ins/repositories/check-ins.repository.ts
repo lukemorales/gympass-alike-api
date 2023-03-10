@@ -12,11 +12,15 @@ export type FindByMembershipAndDateOptions = {
   gymId: string;
   date: Date;
 };
+export type FindManyByUserIdOptions = {
+  userId: string;
+  cursor?: string;
+};
 
 export interface CheckInsRepository {
-  create: (payload: CreateCheckInOptions) => Promise<CheckIn>;
+  create: (options: CreateCheckInOptions) => Promise<CheckIn>;
   findByMembershipAndDate: (
-    payload: FindByMembershipAndDateOptions,
+    options: FindByMembershipAndDateOptions,
   ) => Promise<O.Option<CheckIn>>;
-  findManyByUserId: (userId: string) => Promise<CheckIn[]>;
+  findManyByUserId: (options: FindManyByUserIdOptions) => Promise<CheckIn[]>;
 }

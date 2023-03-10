@@ -3,11 +3,13 @@ import { type CheckIn } from '@prisma/client';
 import dayjs from 'dayjs';
 
 import { A, pipe } from '@shared/effect';
+import { MAX_PAGE_SIZE } from '@shared/paginated-list';
 
 import {
   type CreateCheckInOptions,
   type CheckInsRepository,
   type FindByMembershipAndDateOptions,
+  type FindManyByUserIdOptions,
 } from './check-ins.repository';
 
 export class CheckInsInMemoryRepository implements CheckInsRepository {
@@ -52,10 +54,19 @@ export class CheckInsInMemoryRepository implements CheckInsRepository {
     );
   }
 
-  async findManyByUserId(userId: string) {
-    return pipe(
+  async findManyByUserId({ userId, cursor }: FindManyByUserIdOptions) {
+    const entries = pipe(
       this.repository,
       A.filter((checkIn) => checkIn.user_id === userId),
     );
+
+    if (cursor) {
+      const cursorIndex =
+        entries.findIndex((checkIn) => checkIn.id === cursor) + 1;
+
+      return entries.slice(cursorIndex, cursorIndex + MAX_PAGE_SIZE);
+    }
+
+    return entries.slice(0, MAX_PAGE_SIZE);
   }
 }
