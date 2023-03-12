@@ -74,11 +74,6 @@ describe('ListUserCheckInHistoryService', () => {
     });
 
     it('returns a paginated check-in history for a specific user', async () => {
-      const first = await checkInsRepository.create({
-        gymId: ulid() as GymId,
-        userId,
-      });
-
       for (let i = 1; i < 20; i++) {
         await checkInsRepository.create({
           gymId: ulid() as GymId,
@@ -100,7 +95,7 @@ describe('ListUserCheckInHistoryService', () => {
 
       const firstResult = await sut.execute({
         userId,
-        cursor: first.id,
+        cursor: null,
       });
 
       expect(firstResult).toEqual({

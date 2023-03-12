@@ -58,14 +58,6 @@ describe('SearchGymsService', () => {
     });
 
     it('returns a paginated list of gyms that match the expected query', async () => {
-      const first = await gymsRepository.create({
-        name: `Maromba Gym 00`,
-        description: null,
-        phone: null,
-        latitude: 0.987654321,
-        longitude: -0.987654321,
-      });
-
       for (let i = 1; i < 20; i++) {
         await gymsRepository.create({
           name: `Maromba Gym ${i.toString().padStart(2, '0')}`,
@@ -96,7 +88,7 @@ describe('SearchGymsService', () => {
 
       const firstResult = await sut.execute({
         query: 'maromba',
-        cursor: first.id,
+        cursor: null,
       });
 
       expect(firstResult).toEqual({
