@@ -3,8 +3,13 @@ import { ulid } from 'ulid';
 
 import { A, O, pipe } from '@shared/effect';
 import { unprefixId } from '@shared/unprefix-id';
+import { MAX_PAGE_SIZE } from '@shared/paginated-list';
 
-import { type CreateGymOptions, type GymsRepository } from './gyms.repository';
+import {
+  type SearchGymsOptions,
+  type CreateGymOptions,
+  type GymsRepository,
+} from './gyms.repository';
 import { GymAdapter } from '../gym.adapter';
 import { type GymId } from '../gym.identifier';
 
@@ -32,5 +37,24 @@ export class GymsInMemoryRepository implements GymsRepository {
       A.findFirst((gym) => gym.id === unprefixId(id)),
       O.map(GymAdapter.toDomain),
     );
+  }
+
+  async searchMany({ query, cursor }: SearchGymsOptions) {
+    const entries = pipe(
+      this.repository,
+      A.filter((gym) => gym.name.toLowerCase().includes(query.toLowerCase())),
+    );
+
+    if (cursor) {
+      const cursorIndex =
+        entries.findIndex((gym) => gym.id === unprefixId(cursor)) + 1;
+
+      return pipe(
+        entries.slice(cursorIndex, cursorIndex + MAX_PAGE_SIZE),
+        A.map(GymAdapter.toDomain),
+      );
+    }
+
+    return pipe(entries.slice(0, MAX_PAGE_SIZE), A.map(GymAdapter.toDomain));
   }
 }

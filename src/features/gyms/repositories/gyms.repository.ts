@@ -11,7 +11,13 @@ export type CreateGymOptions = {
   longitude: number;
 };
 
+export type SearchGymsOptions = {
+  query: string;
+  cursor?: GymId;
+};
+
 export interface GymsRepository {
   create: (options: CreateGymOptions) => Promise<Gym>;
   findById: (id: GymId) => Promise<O.Option<Gym>>;
+  searchMany: (options: SearchGymsOptions) => Promise<Gym[]>;
 }
