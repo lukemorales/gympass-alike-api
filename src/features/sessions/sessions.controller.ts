@@ -3,7 +3,6 @@ import { type FastifyInstance } from 'fastify';
 import { exhaustive } from 'exhaustive';
 
 import { E, pipe } from '@shared/effect';
-import { UserAdapter } from '@features/users';
 
 import { createSessionPayload } from './create-session.service';
 import { makeCreateSessionService } from './factories';
@@ -16,19 +15,17 @@ export async function sessionsController(app: FastifyInstance) {
 
     const result = await createSessionService.execute(payload);
 
-    return pipe(
-      result,
-      E.match(
-        (error) =>
-          exhaustive.tag(error, 'tag', {
-            InvalidCredentials: (_) =>
-              reply.status(400).send({ message: 'Invalid credentials' }),
-          }),
-        (success) =>
-          reply
-            .status(200)
-            .send({ user: pipe(success.user, UserAdapter.toJSON) }),
-      ),
-    );
+    if (E.isLeft(result)) {
+      return exhaustive.tag(result.left, 'tag', {
+        InvalidCredentials: (_) =>
+          reply.status(400).send({ message: 'Invalid credentials' }),
+      });
+    }
+
+    const { user } = result.right;
+
+    const token = await reply.jwtSign({}, { sign: { sub: user.id } });
+
+    return reply.status(200).send({ token });
   });
 }

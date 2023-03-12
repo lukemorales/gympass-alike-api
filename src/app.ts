@@ -1,3 +1,4 @@
+import fastifyJwt from '@fastify/jwt';
 import fastify from 'fastify';
 
 import { ZodError } from 'zod';
@@ -7,6 +8,10 @@ import { ENV } from './config/env';
 import { routes } from './routes';
 
 export const app = fastify();
+
+void app.register(fastifyJwt, {
+  secret: ENV.JWT_SECRET,
+});
 
 routes.forEach(
   ([controller, prefix]) => void app.register(controller, { prefix }),
