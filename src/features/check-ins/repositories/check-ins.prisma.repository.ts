@@ -1,5 +1,6 @@
 import { ulid } from 'ulid';
 import { Prisma, type PrismaClient } from '@prisma/client';
+import dayjs from 'dayjs';
 
 import { prisma } from '@shared/prisma';
 import { A, E, flow, O, pipe } from '@shared/effect';
@@ -38,14 +39,6 @@ export class CheckInsPrismaRepository implements CheckInsRepository {
     return pipe(checkIn, CheckInAdapter.toDomain);
   }
 
-  async findById(id: CheckInId) {
-    const user = await this.repository.findUnique({
-      where: { id: unprefixId(id) },
-    });
-
-    return pipe(user, O.fromNullable, O.map(CheckInAdapter.toDomain));
-  }
-
   async update(
     id: CheckInId,
     options: UpdateCheckInOptions,
@@ -69,16 +62,31 @@ export class CheckInsPrismaRepository implements CheckInsRepository {
       });
   }
 
+  async findById(id: CheckInId) {
+    const user = await this.repository.findUnique({
+      where: { id: unprefixId(id) },
+    });
+
+    return pipe(user, O.fromNullable, O.map(CheckInAdapter.toDomain));
+  }
+
   async findByMembershipAndDate({
     userId,
     gymId,
     date,
   }: FindByMembershipAndDateOptions) {
+    const targetDate = dayjs(date);
+    const startOfDay = targetDate.startOf('date');
+    const endOfDay = targetDate.endOf('date');
+
     const checkIn = await this.repository.findFirst({
       where: {
         user_id: unprefixId(userId),
         gym_id: unprefixId(gymId),
-        created_at: date,
+        created_at: {
+          gte: startOfDay.toDate(),
+          lte: endOfDay.toDate(),
+        },
       },
     });
 
