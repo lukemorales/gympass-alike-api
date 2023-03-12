@@ -10,6 +10,7 @@ import {
   type SearchGymsOptions,
   type CreateGymOptions,
   type GymsRepository,
+  type FindManyByCoordsOptions,
 } from './gyms.repository';
 import { GymAdapter } from '../gym.adapter';
 import { type GymId } from '../gym.identifier';
@@ -48,6 +49,18 @@ export class GymsPrismaRepository implements GymsRepository {
           mode: 'insensitive',
         },
       },
+      cursor: { id: cursor ? unprefixId(cursor) : undefined },
+      orderBy: { id: 'asc' },
+      skip: cursor ? 1 : undefined,
+      take: MAX_PAGE_SIZE,
+    });
+
+    return pipe(gyms, A.map(GymAdapter.toDomain));
+  }
+
+  // TODO: implement coordinate search in db query
+  async findManyByCoords({ coords: _, cursor }: FindManyByCoordsOptions) {
+    const gyms = await this.repository.findMany({
       cursor: { id: cursor ? unprefixId(cursor) : undefined },
       orderBy: { id: 'asc' },
       skip: cursor ? 1 : undefined,

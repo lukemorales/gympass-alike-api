@@ -16,8 +16,17 @@ export type SearchGymsOptions = {
   cursor?: GymId;
 };
 
+export type FindManyByCoordsOptions = {
+  coords: {
+    lat: number;
+    long: number;
+  };
+  cursor?: GymId;
+};
+
 export interface GymsRepository {
   create: (options: CreateGymOptions) => Promise<Gym>;
   findById: (id: GymId) => Promise<O.Option<Gym>>;
   searchMany: (options: SearchGymsOptions) => Promise<Gym[]>;
+  findManyByCoords: (options: FindManyByCoordsOptions) => Promise<Gym[]>;
 }

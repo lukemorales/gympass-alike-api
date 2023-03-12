@@ -7,10 +7,11 @@ import { ResourceNotFound } from '@shared/failures';
 import { UserId } from '@features/users';
 
 import { type CheckInsRepository } from './repositories';
-import { getDistanceBetweenCoordinates } from './get-distance-between-coordinates';
+import {
+  getDistanceBetweenCoordinates,
+  MAX_DISTANCE_FROM_GYM_IN_KILOMETERS,
+} from '../../shared/get-distance-between-coordinates';
 import { type CheckIn } from './check-in.entity';
-
-const MAX_DISTANCE_FROM_GYM_IN_KILOMETERS = 0.1;
 
 export const createCheckInPayload = z.object({
   gymId: GymId,

@@ -1,5 +1,6 @@
 import { z } from 'zod';
 
+import { Coords } from './coords.schema';
 import { type Gym } from './gym.entity';
 import { type GymsRepository } from './repositories';
 
@@ -7,10 +8,7 @@ export const createGymPayload = z.object({
   name: z.string().min(1),
   description: z.string().min(1).nullable(),
   phone: z.string().min(1).nullable(),
-  coords: z.object({
-    lat: z.number(),
-    long: z.number(),
-  }),
+  coords: Coords,
 });
 
 type CreateGymPayload = z.infer<typeof createGymPayload>;

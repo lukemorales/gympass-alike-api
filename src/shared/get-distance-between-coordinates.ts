@@ -3,6 +3,11 @@ type Coordinate = {
   long: number;
 };
 
+export const MAX_DISTANCE_FROM_GYM_IN_KILOMETERS = 0.1;
+
+export const MAX_GYM_SEARCH_RADIUS_IN_KILOMETERS =
+  MAX_DISTANCE_FROM_GYM_IN_KILOMETERS * 100;
+
 export function getDistanceBetweenCoordinates(
   from: Coordinate,
   to: Coordinate,

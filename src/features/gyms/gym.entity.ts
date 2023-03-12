@@ -1,5 +1,6 @@
 import { z } from 'zod';
 
+import { Coords } from './coords.schema';
 import { GymId } from './gym.identifier';
 
 const GymEntity = z.object({
@@ -7,10 +8,7 @@ const GymEntity = z.object({
   name: z.string().min(1),
   description: z.string().min(1).nullable(),
   phone: z.string().min(1).nullable(),
-  coords: z.strictObject({
-    lat: z.number(),
-    long: z.number(),
-  }),
+  coords: Coords.strict(),
   updatedAt: z.date(),
   createdAt: z.date(),
 });
