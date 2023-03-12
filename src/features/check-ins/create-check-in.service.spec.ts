@@ -19,7 +19,7 @@ describe('CreateCheckInService', () => {
     clock = new Clock();
     checkInsRepository = new CheckInsInMemoryRepository(clock);
     gymsRepository = new GymsInMemoryRepository();
-    sut = new CreateCheckInService(clock, checkInsRepository, gymsRepository);
+    sut = new CreateCheckInService(checkInsRepository, clock, gymsRepository);
   });
 
   describe('execute', () => {
