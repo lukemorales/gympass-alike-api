@@ -1,7 +1,8 @@
 import { z } from 'zod';
 
 import { E, O } from '@shared/effect';
-import { Email, HashedPassword, Password } from '@shared/branded-types';
+import { Email, Password } from '@shared/branded-types';
+import { encryptPassword } from '@shared/encrypt-password';
 
 import { type UsersRepository } from './repositories';
 import { type User } from './user.entity';
@@ -45,7 +46,7 @@ export class CreateUserService {
     const user = await this.usersRepository.create({
       name,
       email,
-      passwordHash: await HashedPassword.parseAsync(password),
+      passwordHash: await encryptPassword(password),
     });
 
     return E.right(new UserCreated(user));

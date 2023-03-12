@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-import { Email } from '@shared/branded-types';
+import { Email, HashedPassword } from '@shared/branded-types';
 
 import { UserId } from './user.identifier';
 
@@ -10,7 +10,7 @@ const UserEntity = z.object({
   email: Email,
   updatedAt: z.date(),
   createdAt: z.date(),
-  _passwordHash: z.string().min(1),
+  _passwordHash: HashedPassword,
 });
 
 export interface UserSchema extends z.input<typeof UserEntity> {}
@@ -28,7 +28,7 @@ export class User implements UserEntity {
 
   createdAt: Date;
 
-  _passwordHash: string;
+  _passwordHash: HashedPassword;
 
   constructor(input: UserSchema) {
     Object.assign(this, UserEntity.parse(input));

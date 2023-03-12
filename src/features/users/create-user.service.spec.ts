@@ -2,11 +2,8 @@ import assert from 'assert';
 import bcrypt from 'bcryptjs';
 
 import { E } from '@shared/effect';
-import {
-  type HashedPassword,
-  type Email,
-  type Password,
-} from '@shared/branded-types';
+import { type Email, type Password } from '@shared/branded-types';
+import { encryptPassword } from '@shared/encrypt-password';
 
 import { CreateUserService } from './create-user.service';
 import { UsersInMemoryRepository } from './repositories/users.in-memory.repository';
@@ -25,7 +22,7 @@ describe('CreateUserService', () => {
       await usersRepository.create({
         name: 'John Doe',
         email: 'john@doe.com' as Email,
-        passwordHash: 'dummy-password' as HashedPassword,
+        passwordHash: await encryptPassword('dummy-password' as Password),
       });
 
       const result = await sut.execute({

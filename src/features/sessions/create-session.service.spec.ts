@@ -2,11 +2,8 @@ import assert from 'assert';
 
 import { E } from '@shared/effect';
 import { UsersInMemoryRepository } from '@features/users';
-import {
-  HashedPassword,
-  type Password,
-  type Email,
-} from '@shared/branded-types';
+import { type Password, type Email } from '@shared/branded-types';
+import { encryptPassword } from '@shared/encrypt-password';
 
 import { CreateSessionService } from './create-session.service';
 
@@ -24,7 +21,7 @@ describe('CreateSessionService', () => {
       await usersRepository.create({
         name: 'John Doe',
         email: 'john@doe.com' as Email,
-        passwordHash: await HashedPassword.parseAsync('dummy-password'),
+        passwordHash: await encryptPassword('dummy-password' as Password),
       });
     };
 
