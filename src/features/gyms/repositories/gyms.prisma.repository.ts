@@ -1,10 +1,11 @@
-import { type PrismaClient } from '@prisma/client';
+import { Prisma, type Gym, type PrismaClient } from '@prisma/client';
 import { ulid } from 'ulid';
 
 import { prisma } from '@shared/prisma';
 import { A, O, pipe } from '@shared/effect';
 import { unprefixId } from '@shared/unprefix-id';
 import { MAX_PAGE_SIZE } from '@shared/paginated-list';
+import { MAX_GYM_SEARCH_RADIUS_IN_KILOMETERS } from '@shared/get-distance-between-coordinates';
 
 import {
   type SearchGymsOptions,
@@ -58,14 +59,20 @@ export class GymsPrismaRepository implements GymsRepository {
     return pipe(gyms, A.map(GymAdapter.toDomain));
   }
 
-  // TODO: implement coordinate search in db query
-  async findManyByCoords({ coords: _, cursor }: FindManyByCoordsOptions) {
-    const gyms = await this.repository.findMany({
-      cursor: { id: cursor ? unprefixId(cursor) : undefined },
-      orderBy: { id: 'asc' },
-      skip: cursor ? 1 : undefined,
-      take: MAX_PAGE_SIZE,
-    });
+  async findManyByCoords({ coords, cursor }: FindManyByCoordsOptions) {
+    const gyms = await prisma.$queryRaw<Gym[]>(Prisma.sql`
+    SELECT * from gyms
+    WHERE ( 6371 * acos( cos( radians(${
+      coords.lat
+    }) ) * cos( radians( latitude ) ) * cos( radians( longitude ) - radians(${
+      coords.long
+    }) ) + sin( radians(${
+      coords.lat
+    }) ) * sin( radians( latitude ) ) ) ) <= ${MAX_GYM_SEARCH_RADIUS_IN_KILOMETERS}
+    ${cursor ? `AND WHERE id > ${unprefixId(cursor)}` : ''}
+    ORDER BY id ASC
+    LIMIT ${MAX_PAGE_SIZE}
+  `);
 
     return pipe(gyms, A.map(GymAdapter.toDomain));
   }
