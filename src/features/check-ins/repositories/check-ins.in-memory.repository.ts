@@ -5,6 +5,7 @@ import dayjs from 'dayjs';
 import { A, O, pipe } from '@shared/effect';
 import { MAX_PAGE_SIZE } from '@shared/paginated-list';
 import { unprefixId } from '@shared/unprefix-id';
+import { type UserId } from '@features/users';
 import { type Clock } from '@features/clock';
 
 import {
@@ -83,6 +84,14 @@ export class CheckInsInMemoryRepository implements CheckInsRepository {
     return pipe(
       entries.slice(0, MAX_PAGE_SIZE),
       A.map(CheckInAdapter.toDomain),
+    );
+  }
+
+  async countByUserId(userId: UserId) {
+    return pipe(
+      this.repository,
+      A.filter((checkIn) => checkIn.user_id === unprefixId(userId)),
+      A.length,
     );
   }
 }

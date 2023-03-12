@@ -5,6 +5,7 @@ import { prisma } from '@shared/prisma';
 import { A, O, pipe } from '@shared/effect';
 import { MAX_PAGE_SIZE } from '@shared/paginated-list';
 import { unprefixId } from '@shared/unprefix-id';
+import { type UserId } from '@features/users';
 
 import {
   type CreateCheckInOptions,
@@ -59,5 +60,13 @@ export class CheckInsPrismaRepository implements CheckInsRepository {
     });
 
     return pipe(checkIns, A.map(CheckInAdapter.toDomain));
+  }
+
+  async countByUserId(userId: UserId) {
+    const count = await this.repository.count({
+      where: { user_id: unprefixId(userId) },
+    });
+
+    return count;
   }
 }

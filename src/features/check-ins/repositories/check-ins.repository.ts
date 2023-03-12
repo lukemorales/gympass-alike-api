@@ -15,6 +15,7 @@ export type FindByMembershipAndDateOptions = {
   gymId: GymId;
   date: Date;
 };
+
 export type FindManyByUserIdOptions = {
   userId: UserId;
   cursor?: CheckInId;
@@ -26,4 +27,5 @@ export interface CheckInsRepository {
     options: FindByMembershipAndDateOptions,
   ) => Promise<O.Option<CheckIn>>;
   findManyByUserId: (options: FindManyByUserIdOptions) => Promise<CheckIn[]>;
+  countByUserId: (userId: UserId) => Promise<number>;
 }
