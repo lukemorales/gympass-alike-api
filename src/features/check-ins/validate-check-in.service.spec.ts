@@ -1,5 +1,6 @@
 import assert from 'assert';
 import { ulid } from 'ulid';
+import dayjs from 'dayjs';
 
 import { Clock } from '@features/clock';
 import { E } from '@shared/effect';
@@ -36,15 +37,55 @@ describe('ValidCheckInService', () => {
       });
     });
 
-    it('validates a check-in', async () => {
+    it('fails with a "ExpiredCheckIn" error if trying to validate check-in after 20 minutes of its creation', async () => {
+      const checkInCreationDate = new Date();
+
+      vi.spyOn(clock, 'now', 'get').mockReturnValueOnce(checkInCreationDate);
+
       const checkIn = await checkInsRepository.create({
         gymId: ulid() as GymId,
         userId: ulid() as UserId,
       });
 
-      const date = new Date();
+      const checkInValidationDate = dayjs(checkInCreationDate).add(
+        25,
+        'minutes',
+      );
 
-      vi.spyOn(clock, 'now', 'get').mockReturnValue(date);
+      vi.spyOn(clock, 'now', 'get').mockReturnValueOnce(
+        checkInValidationDate.toDate(),
+      );
+
+      const result = await sut.execute({
+        checkInId: checkIn.id,
+      });
+
+      assert.ok(E.isLeft(result));
+
+      expect(result.left).toMatchObject({
+        tag: 'ExpiredCheckIn',
+        checkInId: checkIn.id,
+      });
+    });
+
+    it('validates a check-in', async () => {
+      const checkInCreationDate = new Date();
+
+      vi.spyOn(clock, 'now', 'get').mockReturnValueOnce(checkInCreationDate);
+
+      const checkIn = await checkInsRepository.create({
+        gymId: ulid() as GymId,
+        userId: ulid() as UserId,
+      });
+
+      const checkInValidationDate = dayjs(checkInCreationDate).add(
+        15,
+        'minutes',
+      );
+
+      vi.spyOn(clock, 'now', 'get').mockReturnValueOnce(
+        checkInValidationDate.toDate(),
+      );
 
       const result = await sut.execute({
         checkInId: checkIn.id,
@@ -55,11 +96,11 @@ describe('ValidCheckInService', () => {
       const validatedCheckIn = result.right.checkIn;
 
       expect(validatedCheckIn).toMatchObject({
-        validatedAt: date,
+        validatedAt: checkInValidationDate.toDate(),
       });
 
       expect(checkInsRepository.repository[0]).toMatchObject({
-        validated_at: date,
+        validated_at: checkInValidationDate.toDate(),
       });
     });
   });
