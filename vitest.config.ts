@@ -8,12 +8,11 @@ export default defineConfig({
   test: {
     globals: true,
     environment: 'node',
-    root: 'src',
     exclude: [
       '**/node_modules/**',
-      '**/dist/**',
-      '**/types.ts',
-      'tests/setup-tests.ts',
+      'src/**/dist/**',
+      'src/**/types.ts',
+      'src/tests/**',
     ],
     coverage: {
       exclude: [
@@ -22,6 +21,6 @@ export default defineConfig({
         'src/**/types.ts',
       ],
     },
-    setupFiles: ['tests/setup-tests.ts'],
+    setupFiles: ['src/tests/setup-tests.ts'],
   },
 });
