@@ -1,9 +1,10 @@
 import assert from 'assert';
-import { type Gym } from '@prisma/client';
+import { ulid } from 'ulid';
 
 import { Clock } from '@features/clock';
 import { E } from '@shared/effect';
-import { GymsInMemoryRepository } from '@features/gyms';
+import { type Gym, GymsInMemoryRepository, type GymId } from '@features/gyms';
+import { type UserId } from '@features/users';
 
 import { CreateCheckInService } from './create-check-in.service';
 import { CheckInsInMemoryRepository } from './repositories';
@@ -28,6 +29,8 @@ describe('CreateCheckInService', () => {
   });
 
   describe('execute', () => {
+    const userId = ulid() as UserId;
+
     let gym01: Gym;
     let gym02: Gym;
 
@@ -36,14 +39,14 @@ describe('CreateCheckInService', () => {
         gymsRepository.create({
           name: 'Maromba Gym',
           phone: null,
-          description: '',
+          description: null,
           latitude: 0.987654321,
           longitude: -0.987654321,
         }),
         gymsRepository.create({
           name: 'Super Maromba Gym',
           phone: null,
-          description: '',
+          description: null,
           latitude: 0.123456789,
           longitude: -0.123456789,
         }),
@@ -55,8 +58,8 @@ describe('CreateCheckInService', () => {
 
     it('fails with a "ResourceNotFound" error if the gym does not exist', async () => {
       const result = await sut.execute({
-        userId: 'user_01',
-        gymId: 'gym_invalid_id',
+        userId,
+        gymId: 'gym_invalid_id' as GymId,
         coords: {
           lat: 0.987654321,
           long: -0.987654321,
@@ -76,7 +79,7 @@ describe('CreateCheckInService', () => {
       vi.setSystemTime(date);
 
       await sut.execute({
-        userId: 'user_01',
+        userId,
         gymId: gym01.id,
         coords: {
           lat: 0.987654321,
@@ -85,7 +88,7 @@ describe('CreateCheckInService', () => {
       });
 
       const result = await sut.execute({
-        userId: 'user_01',
+        userId,
         gymId: gym01.id,
         coords: {
           lat: 0.987654321,
@@ -104,7 +107,7 @@ describe('CreateCheckInService', () => {
 
     it('fails with a "NotOnLocation" error if distance from gym is greater than allowed', async () => {
       const result = await sut.execute({
-        userId: 'user_01',
+        userId,
         gymId: gym01.id,
         coords: {
           lat: 0.917257389,
@@ -122,7 +125,7 @@ describe('CreateCheckInService', () => {
 
     it('creates a check-in', async () => {
       const result = await sut.execute({
-        userId: 'user_01',
+        userId,
         gymId: gym01.id,
         coords: {
           lat: 0.987654321,
@@ -136,8 +139,8 @@ describe('CreateCheckInService', () => {
 
       expect(checkIn).toMatchObject({
         id: expect.any(String),
-        user_id: 'user_01',
-        gym_id: gym01.id,
+        userId: expect.stringContaining(userId),
+        gymId: gym01.id,
       });
     });
 
@@ -145,7 +148,7 @@ describe('CreateCheckInService', () => {
       vi.setSystemTime(new Date(2023, 2, 10, 8, 0, 0, 0));
 
       await sut.execute({
-        userId: 'user_01',
+        userId,
         gymId: gym01.id,
         coords: {
           lat: 0.987654321,
@@ -154,7 +157,7 @@ describe('CreateCheckInService', () => {
       });
 
       const result = await sut.execute({
-        userId: 'user_01',
+        userId,
         gymId: gym02.id,
         coords: {
           lat: 0.123456789,
@@ -168,8 +171,8 @@ describe('CreateCheckInService', () => {
 
       expect(checkIn).toMatchObject({
         id: expect.any(String),
-        user_id: 'user_01',
-        gym_id: gym02.id,
+        userId: expect.stringContaining(userId),
+        gymId: gym02.id,
       });
     });
   });

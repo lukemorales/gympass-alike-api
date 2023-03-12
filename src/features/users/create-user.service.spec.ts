@@ -2,6 +2,11 @@ import assert from 'assert';
 import bcrypt from 'bcryptjs';
 
 import { E } from '@shared/effect';
+import {
+  type HashedPassword,
+  type Email,
+  type Password,
+} from '@shared/branded-types';
 
 import { CreateUserService } from './create-user.service';
 import { UsersInMemoryRepository } from './repositories/users.in-memory.repository';
@@ -19,31 +24,29 @@ describe('CreateUserService', () => {
     it('does not create a user if a record with the same email exists', async () => {
       await usersRepository.create({
         name: 'John Doe',
-        email: 'john@doe.com',
-        passwordHash: 'dummy-password',
+        email: 'john@doe.com' as Email,
+        passwordHash: 'dummy-password' as HashedPassword,
       });
 
       const result = await sut.execute({
         name: 'John Doe',
-        email: 'john@doe.com',
-        password: 'dummy-password',
+        email: 'john@doe.com' as Email,
+        password: 'dummy-password' as Password,
       });
 
       assert.ok(E.isLeft(result));
 
-      expect(result.left).toMatchInlineSnapshot(`
-        EmailNotAvailable {
-          "email": "john@doe.com",
-          "tag": "EmailNotAvailable",
-        }
-      `);
+      expect(result.left).toMatchObject({
+        tag: 'EmailNotAvailable',
+        email: 'john@doe.com',
+      });
     });
 
     it('creates a user', async () => {
       const result = await sut.execute({
         name: 'John Doe',
-        email: 'john@doe.com',
-        password: 'dummy-password',
+        email: 'john@doe.com' as Email,
+        password: 'dummy-password' as Password,
       });
 
       assert.ok(E.isRight(result));
@@ -54,16 +57,16 @@ describe('CreateUserService', () => {
         id: expect.any(String),
         name: 'John Doe',
         email: 'john@doe.com',
-        password_hash: expect.any(String),
+        _passwordHash: expect.any(String),
       });
     });
 
     it('hashes the user password on account creation', async () => {
-      const password = 'dummy-password';
+      const password = 'dummy-password' as Password;
 
       const result = await sut.execute({
         name: 'John Doe',
-        email: 'john@doe.com',
+        email: 'john@doe.com' as Email,
         password,
       });
 
@@ -71,11 +74,11 @@ describe('CreateUserService', () => {
 
       const { user } = result.right;
 
-      expect(user.password_hash).not.toBe(password);
+      expect(user._passwordHash).not.toBe(password);
 
       const isPasswordHashedCorrectly = await bcrypt.compare(
         password,
-        user.password_hash,
+        user._passwordHash,
       );
 
       expect(isPasswordHashedCorrectly).toBe(true);

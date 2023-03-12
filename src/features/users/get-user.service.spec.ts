@@ -1,13 +1,11 @@
 import assert from 'assert';
-import bcrypt from 'bcryptjs';
 
 import { E } from '@shared/effect';
-import {
-  ENCRYPTION_SALT_ROUNDS,
-  UsersInMemoryRepository,
-} from '@features/users';
+import { UsersInMemoryRepository } from '@features/users';
+import { HashedPassword, type Email } from '@shared/branded-types';
 
 import { GetUserService } from './get-user.service';
+import { type UserId } from './user.identifier';
 
 describe('GetUserService', () => {
   let usersRepository: UsersInMemoryRepository;
@@ -22,11 +20,8 @@ describe('GetUserService', () => {
     const performSetup = async () => {
       const user = await usersRepository.create({
         name: 'John Doe',
-        email: 'john@doe.com',
-        passwordHash: await bcrypt.hash(
-          'dummy-password',
-          ENCRYPTION_SALT_ROUNDS,
-        ),
+        email: 'john@doe.com' as Email,
+        passwordHash: await HashedPassword.parseAsync('dummy-password'),
       });
 
       return user;
@@ -34,17 +29,15 @@ describe('GetUserService', () => {
 
     it('fails with an "ResourceNotFound" error if user does not exist', async () => {
       const result = await sut.execute({
-        id: 'invalid-id',
+        id: 'invalid-id' as UserId,
       });
 
       assert.ok(E.isLeft(result));
 
-      expect(result.left).toMatchInlineSnapshot(`
-        ResourceNotFound {
-          "resourceId": "invalid-id",
-          "tag": "ResourceNotFound",
-        }
-      `);
+      expect(result.left).toMatchObject({
+        tag: 'ResourceNotFound',
+        resourceId: 'invalid-id',
+      });
     });
 
     it('returns the user', async () => {
@@ -62,7 +55,7 @@ describe('GetUserService', () => {
         id: expect.any(String),
         name: 'John Doe',
         email: 'john@doe.com',
-        password_hash: expect.any(String),
+        _passwordHash: expect.any(String),
       });
     });
   });

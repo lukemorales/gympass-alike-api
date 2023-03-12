@@ -1,6 +1,6 @@
 /* eslint-disable no-console */
 import { app } from './app';
-import { ENV } from './shared/env';
+import { ENV } from './config/env';
 
 void app
   .listen({ host: '0.0.0.0', port: ENV.PORT })

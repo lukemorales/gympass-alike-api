@@ -1,9 +1,12 @@
 import { Prisma, type Gym } from '@prisma/client';
 import { ulid } from 'ulid';
 
-import { A, pipe } from '@shared/effect';
+import { A, O, pipe } from '@shared/effect';
+import { unprefixId } from '@shared/unprefix-id';
 
 import { type CreateGymOptions, type GymsRepository } from './gyms.repository';
+import { GymAdapter } from '../gym.adapter';
+import { type GymId } from '../gym.identifier';
 
 export class GymsInMemoryRepository implements GymsRepository {
   readonly repository: Gym[] = [];
@@ -20,13 +23,14 @@ export class GymsInMemoryRepository implements GymsRepository {
 
     this.repository.push(gym);
 
-    return gym;
+    return pipe(gym, GymAdapter.toDomain);
   }
 
-  async findById(id: string) {
+  async findById(id: GymId) {
     return pipe(
       this.repository,
-      A.findFirst((gym) => gym.id === id),
+      A.findFirst((gym) => gym.id === unprefixId(id)),
+      O.map(GymAdapter.toDomain),
     );
   }
 }

@@ -1,3 +1,8 @@
+import { ulid } from 'ulid';
+
+import { type GymId } from '@features/gyms';
+import { type UserId } from '@features/users';
+
 import { CheckInsInMemoryRepository } from './repositories';
 import { ListUserCheckInHistoryService } from './list-user-check-in-history.service';
 
@@ -17,32 +22,38 @@ describe('ListUserCheckInHistoryService', () => {
   });
 
   describe('execute', () => {
+    const gymId = ulid() as GymId;
+    const gym2Id = ulid() as GymId;
+
+    const userId = ulid() as UserId;
+    const user2Id = ulid() as UserId;
+
     it('returns the check-in history for a specific user', async () => {
       await Promise.all([
         checkInsRepository.create({
-          gymId: 'gym_01',
-          userId: 'user_01',
+          gymId,
+          userId,
         }),
         checkInsRepository.create({
-          gymId: 'gym_02',
-          userId: 'user_01',
+          gymId: gym2Id,
+          userId,
         }),
         checkInsRepository.create({
-          gymId: 'gym_03',
-          userId: 'user_01',
+          gymId: ulid() as GymId,
+          userId,
         }),
         checkInsRepository.create({
-          gymId: 'gym_01',
-          userId: 'user_02',
+          gymId,
+          userId: user2Id,
         }),
         checkInsRepository.create({
-          gymId: 'gym_02',
-          userId: 'user_02',
+          gymId: gym2Id,
+          userId: user2Id,
         }),
       ]);
 
       const result = await sut.execute({
-        userId: 'user_01',
+        userId,
       });
 
       expect(result).toEqual({
@@ -55,51 +66,43 @@ describe('ListUserCheckInHistoryService', () => {
       expect(result.items).toBeArrayOfSize(3);
 
       expect(result.items).toIncludeAllMembers([
-        expect.objectContaining({
-          user_id: 'user_01',
-        }),
-        expect.objectContaining({
-          user_id: 'user_01',
-        }),
-        expect.objectContaining({
-          user_id: 'user_01',
-        }),
+        expect.toContainValue(expect.stringContaining(userId)),
+        expect.toContainValue(expect.stringContaining(userId)),
+        expect.toContainValue(expect.stringContaining(userId)),
       ]);
 
       expect(result.items).not.toIncludeAnyMembers([
-        expect.objectContaining({
-          user_id: 'user_02',
-        }),
+        expect.toContainValue(expect.stringContaining(user2Id)),
       ]);
     });
 
     it('returns a paginated check-in history for a specific user', async () => {
       const first = await checkInsRepository.create({
-        gymId: `gym_00`,
-        userId: 'user_01',
+        gymId: ulid() as GymId,
+        userId,
       });
 
       for (let i = 1; i < 20; i++) {
         await checkInsRepository.create({
-          gymId: `gym_${i.toString().padStart(2, '0')}`,
-          userId: 'user_01',
+          gymId: ulid() as GymId,
+          userId,
         });
       }
 
       const middle = await checkInsRepository.create({
-        gymId: `gym_20`,
-        userId: 'user_01',
+        gymId: ulid() as GymId,
+        userId,
       });
 
       for (let i = 21; i <= 25; i++) {
         await checkInsRepository.create({
-          gymId: `gym_${i.toString().padStart(2, '0')}`,
-          userId: 'user_01',
+          gymId: ulid() as GymId,
+          userId,
         });
       }
 
       const firstResult = await sut.execute({
-        userId: 'user_01',
+        userId,
         cursor: first.id,
       });
 
@@ -113,7 +116,7 @@ describe('ListUserCheckInHistoryService', () => {
       expect(firstResult.items).toBeArrayOfSize(20);
 
       const secondResult = await sut.execute({
-        userId: 'user_01',
+        userId,
         cursor: firstResult.metadata.cursor,
       });
 

@@ -1,6 +1,7 @@
-import { type Gym } from '@prisma/client';
-
 import { type O } from '@shared/effect';
+
+import { type Gym } from '../gym.entity';
+import { type GymId } from '../gym.identifier';
 
 export type CreateGymOptions = {
   name: string;
@@ -12,5 +13,5 @@ export type CreateGymOptions = {
 
 export interface GymsRepository {
   create: (options: CreateGymOptions) => Promise<Gym>;
-  findById: (id: string) => Promise<O.Option<Gym>>;
+  findById: (id: GymId) => Promise<O.Option<Gym>>;
 }

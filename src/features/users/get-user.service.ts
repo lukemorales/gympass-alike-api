@@ -1,13 +1,14 @@
 import { z } from 'zod';
-import { type User } from '@prisma/client';
 
 import { E, pipe } from '@shared/effect';
 import { ResourceNotFound } from '@shared/failures';
 
 import { type UsersRepository } from './repositories/users.repository';
+import { type User } from './user.entity';
+import { UserId } from './user.identifier';
 
 export const getUserPayload = z.object({
-  id: z.string().min(1),
+  id: UserId,
 });
 
 type GetUserPayload = z.infer<typeof getUserPayload>;

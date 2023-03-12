@@ -1,12 +1,13 @@
 import { type FastifyInstance } from 'fastify';
 
-import { pipe } from '@effect/data/Function';
+import { exhaustive } from 'exhaustive';
 
-import { E } from '@shared/effect';
+import { E, pipe } from '@shared/effect';
 
 import { createUserPayload } from './create-user.service';
 import { makeCreateUserService, makeGetUserService } from './factories';
 import { getUserPayload } from './get-user.service';
+import { UserAdapter } from './user.adapter';
 
 export async function usersController(app: FastifyInstance) {
   app.post('/:id', async (request, reply) => {
@@ -20,10 +21,16 @@ export async function usersController(app: FastifyInstance) {
       result,
       E.match(
         (error) =>
-          reply.status(404).send({
-            message: `User (${error.resourceId}) not found`,
+          exhaustive.tag(error, 'tag', {
+            ResourceNotFound: ({ resourceId }) =>
+              reply.status(404).send({
+                message: `User (${resourceId}) not found`,
+              }),
           }),
-        (user) => reply.status(200).send({ user }),
+        (success) =>
+          reply.status(200).send({
+            user: pipe(success.user, UserAdapter.toJSON),
+          }),
       ),
     );
   });
@@ -39,10 +46,16 @@ export async function usersController(app: FastifyInstance) {
       result,
       E.match(
         (error) =>
-          reply.status(409).send({
-            message: `The email "${error.email}" is already registered`,
+          exhaustive.tag(error, 'tag', {
+            EmailNotAvailable: ({ email }) =>
+              reply.status(409).send({
+                message: `The email "${email}" is already registered`,
+              }),
           }),
-        (_) => reply.status(201).send(),
+        ({ user }) =>
+          reply.status(201).send({
+            user: pipe(user, UserAdapter.toJSON),
+          }),
       ),
     );
   });

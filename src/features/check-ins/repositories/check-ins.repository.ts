@@ -1,20 +1,23 @@
-import { type CheckIn } from '@prisma/client';
-
+import { type GymId } from '@features/gyms';
+import { type UserId } from '@features/users';
 import { type O } from '@shared/effect';
 
+import { type CheckIn } from '../check-in.entity';
+import { type CheckInId } from '../check-in.identifier';
+
 export type CreateCheckInOptions = {
-  userId: string;
-  gymId: string;
+  userId: UserId;
+  gymId: GymId;
 };
 
 export type FindByMembershipAndDateOptions = {
-  userId: string;
-  gymId: string;
+  userId: UserId;
+  gymId: GymId;
   date: Date;
 };
 export type FindManyByUserIdOptions = {
-  userId: string;
-  cursor?: string;
+  userId: UserId;
+  cursor?: CheckInId;
 };
 
 export interface CheckInsRepository {

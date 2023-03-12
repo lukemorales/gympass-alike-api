@@ -1,15 +1,16 @@
 import { ulid } from 'ulid';
 import { type User } from '@prisma/client';
 
-import { A, pipe } from '@shared/effect';
+import { A, O, pipe } from '@shared/effect';
+import { type Email } from '@shared/branded-types';
+import { unprefixId } from '@shared/unprefix-id';
 
-import { type UsersRepository } from './users.repository';
-
-type CreateUserOptions = {
-  name: string;
-  email: string;
-  passwordHash: string;
-};
+import {
+  type CreateUserOptions,
+  type UsersRepository,
+} from './users.repository';
+import { UserAdapter } from '../user.adapter';
+import { type UserId } from '../user.identifier';
 
 export class UsersInMemoryRepository implements UsersRepository {
   readonly repository: User[] = [];
@@ -26,20 +27,22 @@ export class UsersInMemoryRepository implements UsersRepository {
 
     this.repository.push(user);
 
-    return user;
+    return pipe(user, UserAdapter.toDomain);
   }
 
-  async findById(id: string) {
+  async findById(id: UserId) {
     return pipe(
       this.repository,
-      A.findFirst((user) => user.id === id),
+      A.findFirst((user) => user.id === unprefixId(id)),
+      O.map(UserAdapter.toDomain),
     );
   }
 
-  async findByEmail(email: string) {
+  async findByEmail(email: Email) {
     return pipe(
       this.repository,
       A.findFirst((user) => user.email === email),
+      O.map(UserAdapter.toDomain),
     );
   }
 }

@@ -3,14 +3,15 @@ import { type PrismaClient } from '@prisma/client';
 
 import { O, pipe } from '@shared/effect';
 import { prisma } from '@shared/prisma';
+import { unprefixId } from '@shared/unprefix-id';
+import { type Email } from '@shared/branded-types';
 
-import { type UsersRepository } from './users.repository';
-
-type CreateUserOptions = {
-  name: string;
-  email: string;
-  passwordHash: string;
-};
+import {
+  type CreateUserOptions,
+  type UsersRepository,
+} from './users.repository';
+import { UserAdapter } from '../user.adapter';
+import { type UserId } from '../user.identifier';
 
 export class UsersPrismaRepository implements UsersRepository {
   private readonly repository: PrismaClient['user'];
@@ -29,22 +30,22 @@ export class UsersPrismaRepository implements UsersRepository {
       },
     });
 
-    return user;
+    return pipe(user, UserAdapter.toDomain);
   }
 
-  async findById(id: string) {
+  async findById(id: UserId) {
     const user = await this.repository.findUnique({
-      where: { id },
+      where: { id: unprefixId(id) },
     });
 
-    return pipe(user, O.fromNullable);
+    return pipe(user, O.fromNullable, O.map(UserAdapter.toDomain));
   }
 
-  async findByEmail(email: string) {
+  async findByEmail(email: Email) {
     const user = await this.repository.findUnique({
       where: { email },
     });
 
-    return pipe(user, O.fromNullable);
+    return pipe(user, O.fromNullable, O.map(UserAdapter.toDomain));
   }
 }

@@ -1,8 +1,9 @@
 import { type FastifyInstance } from 'fastify';
 
-import { pipe } from '@effect/data/Function';
+import { exhaustive } from 'exhaustive';
 
-import { E } from '@shared/effect';
+import { E, pipe } from '@shared/effect';
+import { UserAdapter } from '@features/users';
 
 import { createSessionPayload } from './create-session.service';
 import { makeCreateSessionService } from './factories';
@@ -18,8 +19,15 @@ export async function sessionsController(app: FastifyInstance) {
     return pipe(
       result,
       E.match(
-        (_) => reply.status(400).send({ message: 'Invalid credentials' }),
-        ({ user }) => reply.status(200).send({ user }),
+        (error) =>
+          exhaustive.tag(error, 'tag', {
+            InvalidCredentials: (_) =>
+              reply.status(400).send({ message: 'Invalid credentials' }),
+          }),
+        (success) =>
+          reply
+            .status(200)
+            .send({ user: pipe(success.user, UserAdapter.toJSON) }),
       ),
     );
   });

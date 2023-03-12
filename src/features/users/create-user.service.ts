@@ -1,23 +1,15 @@
-import bcrypt from 'bcryptjs';
 import { z } from 'zod';
-import { type User } from '@prisma/client';
-import { exhaustive } from 'exhaustive';
 
 import { E, O } from '@shared/effect';
-import { ENV } from '@shared/env';
+import { Email, HashedPassword, Password } from '@shared/branded-types';
 
-import { type UsersRepository } from './repositories/users.repository';
-
-export const ENCRYPTION_SALT_ROUNDS = exhaustive(ENV.NODE_ENV, {
-  test: () => 1,
-  development: () => 6,
-  production: () => 10,
-});
+import { type UsersRepository } from './repositories';
+import { type User } from './user.entity';
 
 export const createUserPayload = z.object({
   name: z.string().min(1),
-  email: z.string().email(),
-  password: z.string().min(6),
+  email: Email,
+  password: Password,
 });
 
 type CreateUserPayload = z.infer<typeof createUserPayload>;
@@ -53,7 +45,7 @@ export class CreateUserService {
     const user = await this.usersRepository.create({
       name,
       email,
-      passwordHash: await bcrypt.hash(password, ENCRYPTION_SALT_ROUNDS),
+      passwordHash: await HashedPassword.parseAsync(password),
     });
 
     return E.right(new UserCreated(user));

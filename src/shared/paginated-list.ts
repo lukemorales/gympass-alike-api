@@ -4,7 +4,7 @@ export const MAX_PAGE_SIZE = 20;
 
 export class PaginatedList<T extends { id: string }> {
   readonly metadata: {
-    cursor: string | null;
+    cursor: T['id'] | null;
   };
 
   constructor(readonly items: T[]) {

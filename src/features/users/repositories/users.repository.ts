@@ -1,15 +1,17 @@
-import { type User } from '@prisma/client';
-
+import { type HashedPassword, type Email } from '@shared/branded-types';
 import { type O } from '@shared/effect';
+
+import { type User } from '../user.entity';
+import { type UserId } from '../user.identifier';
 
 export type CreateUserOptions = {
   name: string;
-  email: string;
-  passwordHash: string;
+  email: Email;
+  passwordHash: HashedPassword;
 };
 
 export interface UsersRepository {
   create: (options: CreateUserOptions) => Promise<User>;
-  findById: (id: string) => Promise<O.Option<User>>;
-  findByEmail: (email: string) => Promise<O.Option<User>>;
+  findById: (id: UserId) => Promise<O.Option<User>>;
+  findByEmail: (email: Email) => Promise<O.Option<User>>;
 }

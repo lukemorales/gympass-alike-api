@@ -1,16 +1,18 @@
-import { type CheckIn } from '@prisma/client';
 import { z } from 'zod';
 
 import { PaginatedList } from '@shared/paginated-list';
+import { UserId } from '@features/users';
 
 import { type CheckInsRepository } from './repositories';
+import { CheckInId } from './check-in.identifier';
+import { type CheckIn } from './check-in.entity';
 
 export const listUserCheckInHistoryPayload = z.object({
-  userId: z.string().min(1),
-  cursor: z.string().nullish(),
+  userId: UserId,
+  cursor: CheckInId.nullish(),
 });
 
-type ListUserCheckInHistoryPayload = z.input<
+type ListUserCheckInHistoryPayload = z.infer<
   typeof listUserCheckInHistoryPayload
 >;
 

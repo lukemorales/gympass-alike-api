@@ -1,13 +1,13 @@
 import bcrypt from 'bcryptjs';
 import { z } from 'zod';
-import { type User } from '@prisma/client';
 
 import { E, O } from '@shared/effect';
-import { type UsersRepository } from '@features/users';
+import { type User, type UsersRepository } from '@features/users';
+import { Email, Password } from '@shared/branded-types';
 
 export const createSessionPayload = z.object({
-  email: z.string().email(),
-  password: z.string().min(6),
+  email: Email,
+  password: Password,
 });
 
 export type CreateSessionPayload = z.infer<typeof createSessionPayload>;
@@ -18,8 +18,8 @@ class InvalidCredentials {
   readonly tag = 'InvalidCredentials';
 }
 
-class AuthenticatedUser {
-  readonly tag = 'AuthenticatedUser';
+class SessionCreated {
+  readonly tag = 'SessionCreated';
 
   constructor(readonly user: User) {}
 }
@@ -31,7 +31,7 @@ export class CreateSessionService {
     email,
     password,
   }: CreateSessionPayload): Promise<
-    E.Either<CreateSessionError, AuthenticatedUser>
+    E.Either<CreateSessionError, SessionCreated>
   > {
     const maybeUser = await this.usersRepository.findByEmail(email);
 
@@ -43,13 +43,13 @@ export class CreateSessionService {
 
     const isMatchingPassword = await bcrypt.compare(
       password,
-      user.password_hash,
+      user._passwordHash,
     );
 
     if (!isMatchingPassword) {
       return E.left(new InvalidCredentials());
     }
 
-    return E.right(new AuthenticatedUser(user));
+    return E.right(new SessionCreated(user));
   }
 }

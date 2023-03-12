@@ -2,8 +2,9 @@ import { ulid } from 'ulid';
 import { type CheckIn } from '@prisma/client';
 import dayjs from 'dayjs';
 
-import { A, pipe } from '@shared/effect';
+import { A, O, pipe } from '@shared/effect';
 import { MAX_PAGE_SIZE } from '@shared/paginated-list';
+import { unprefixId } from '@shared/unprefix-id';
 
 import {
   type CreateCheckInOptions,
@@ -11,6 +12,7 @@ import {
   type FindByMembershipAndDateOptions,
   type FindManyByUserIdOptions,
 } from './check-ins.repository';
+import { CheckInAdapter } from '../check-in.adapter';
 
 export class CheckInsInMemoryRepository implements CheckInsRepository {
   readonly repository: CheckIn[] = [];
@@ -18,8 +20,8 @@ export class CheckInsInMemoryRepository implements CheckInsRepository {
   async create({ gymId, userId }: CreateCheckInOptions) {
     const checkIn: CheckIn = {
       id: ulid(),
-      gym_id: gymId,
-      user_id: userId,
+      gym_id: unprefixId(gymId),
+      user_id: unprefixId(userId),
       validated_at: null,
       updated_at: new Date(),
       created_at: new Date(),
@@ -27,7 +29,7 @@ export class CheckInsInMemoryRepository implements CheckInsRepository {
 
     this.repository.push(checkIn);
 
-    return checkIn;
+    return pipe(checkIn, CheckInAdapter.toDomain);
   }
 
   async findByMembershipAndDate({
@@ -48,25 +50,34 @@ export class CheckInsInMemoryRepository implements CheckInsRepository {
           checkInDate.isAfter(startOfDay) && checkInDate.isBefore(endOfDay);
 
         return (
-          checkIn.user_id === userId && checkIn.gym_id === gymId && isSameDate
+          checkIn.gym_id === unprefixId(gymId) &&
+          checkIn.user_id === unprefixId(userId) &&
+          isSameDate
         );
       }),
+      O.map(CheckInAdapter.toDomain),
     );
   }
 
   async findManyByUserId({ userId, cursor }: FindManyByUserIdOptions) {
     const entries = pipe(
       this.repository,
-      A.filter((checkIn) => checkIn.user_id === userId),
+      A.filter((checkIn) => checkIn.user_id === unprefixId(userId)),
     );
 
     if (cursor) {
       const cursorIndex =
-        entries.findIndex((checkIn) => checkIn.id === cursor) + 1;
+        entries.findIndex((checkIn) => checkIn.id === unprefixId(cursor)) + 1;
 
-      return entries.slice(cursorIndex, cursorIndex + MAX_PAGE_SIZE);
+      return pipe(
+        entries.slice(cursorIndex, cursorIndex + MAX_PAGE_SIZE),
+        A.map(CheckInAdapter.toDomain),
+      );
     }
 
-    return entries.slice(0, MAX_PAGE_SIZE);
+    return pipe(
+      entries.slice(0, MAX_PAGE_SIZE),
+      A.map(CheckInAdapter.toDomain),
+    );
   }
 }

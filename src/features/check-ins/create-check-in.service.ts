@@ -1,19 +1,20 @@
 import { z } from 'zod';
-import { type CheckIn } from '@prisma/client';
 
 import { E, O } from '@shared/effect';
 import { type Clock } from '@features/clock';
-import { type GymsRepository } from '@features/gyms';
+import { GymId, type GymsRepository } from '@features/gyms';
 import { ResourceNotFound } from '@shared/failures';
+import { UserId } from '@features/users';
 
 import { type CheckInsRepository } from './repositories';
 import { getDistanceBetweenCoordinates } from './get-distance-between-coordinates';
+import { type CheckIn } from './check-in.entity';
 
 const MAX_DISTANCE_FROM_GYM_IN_KILOMETERS = 0.1;
 
 export const createCheckInPayload = z.object({
-  userId: z.string().min(1),
-  gymId: z.string().min(1),
+  gymId: GymId,
+  userId: UserId,
   coords: z.object({
     lat: z.number(),
     long: z.number(),
@@ -79,10 +80,7 @@ export class CreateCheckInService {
 
     const gym = maybeGym.value;
 
-    const distanceFromGym = getDistanceBetweenCoordinates(coords, {
-      lat: gym.latitude.toNumber(),
-      long: gym.longitude.toNumber(),
-    });
+    const distanceFromGym = getDistanceBetweenCoordinates(coords, gym.coords);
 
     if (distanceFromGym > MAX_DISTANCE_FROM_GYM_IN_KILOMETERS) {
       return E.left(new NotOnLocation(distanceFromGym));

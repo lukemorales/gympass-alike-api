@@ -1,6 +1,6 @@
 import { z } from 'zod';
-import { type Gym } from '@prisma/client';
 
+import { type Gym } from './gym.entity';
 import { type GymsRepository } from './repositories';
 
 export const createGymPayload = z.object({

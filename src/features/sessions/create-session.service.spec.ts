@@ -1,11 +1,12 @@
 import assert from 'assert';
-import bcrypt from 'bcryptjs';
 
 import { E } from '@shared/effect';
+import { UsersInMemoryRepository } from '@features/users';
 import {
-  ENCRYPTION_SALT_ROUNDS,
-  UsersInMemoryRepository,
-} from '@features/users';
+  HashedPassword,
+  type Password,
+  type Email,
+} from '@shared/branded-types';
 
 import { CreateSessionService } from './create-session.service';
 
@@ -22,52 +23,45 @@ describe('CreateSessionService', () => {
     const performSetup = async () => {
       await usersRepository.create({
         name: 'John Doe',
-        email: 'john@doe.com',
-        passwordHash: await bcrypt.hash(
-          'dummy-password',
-          ENCRYPTION_SALT_ROUNDS,
-        ),
+        email: 'john@doe.com' as Email,
+        passwordHash: await HashedPassword.parseAsync('dummy-password'),
       });
     };
 
     it('fails with an "InvalidCredentials" error if user does not exist', async () => {
       const result = await sut.execute({
-        email: 'john@doe.com',
-        password: 'dummy-password',
+        email: 'john@doe.com' as Email,
+        password: 'dummy-password' as Password,
       });
 
       assert.ok(E.isLeft(result));
 
-      expect(result.left).toMatchInlineSnapshot(`
-        InvalidCredentials {
-          "tag": "InvalidCredentials",
-        }
-      `);
+      expect(result.left).toMatchObject({
+        tag: 'InvalidCredentials',
+      });
     });
 
     it('fails with an "InvalidCredentials" error if passwords does no match', async () => {
       await performSetup();
 
       const result = await sut.execute({
-        email: 'john@doe.com',
-        password: '123456',
+        email: 'john@doe.com' as Email,
+        password: '123456' as Password,
       });
 
       assert.ok(E.isLeft(result));
 
-      expect(result.left).toMatchInlineSnapshot(`
-        InvalidCredentials {
-          "tag": "InvalidCredentials",
-        }
-      `);
+      expect(result.left).toMatchObject({
+        tag: 'InvalidCredentials',
+      });
     });
 
-    it('authenticates the user', async () => {
+    it('creates a new session', async () => {
       await performSetup();
 
       const result = await sut.execute({
-        email: 'john@doe.com',
-        password: 'dummy-password',
+        email: 'john@doe.com' as Email,
+        password: 'dummy-password' as Password,
       });
 
       assert.ok(E.isRight(result));
@@ -78,7 +72,7 @@ describe('CreateSessionService', () => {
         id: expect.any(String),
         name: 'John Doe',
         email: 'john@doe.com',
-        password_hash: expect.any(String),
+        _passwordHash: expect.any(String),
       });
     });
   });
