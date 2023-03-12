@@ -10,7 +10,7 @@ import { getUserPayload } from './get-user.service';
 import { UserAdapter } from './user.adapter';
 
 export async function usersController(app: FastifyInstance) {
-  app.post('/:id', async (request, reply) => {
+  app.get('/:id', async (request, reply) => {
     const payload = pipe(request.params, getUserPayload.parse);
 
     const getUserService = makeGetUserService();
