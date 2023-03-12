@@ -49,8 +49,8 @@ class CheckInCreated {
 
 export class CreateCheckInService {
   constructor(
-    private readonly clock: Clock,
     private readonly checkInsRepository: CheckInsRepository,
+    private readonly clock: Clock,
     private readonly gymsRepository: GymsRepository,
   ) {}
 
