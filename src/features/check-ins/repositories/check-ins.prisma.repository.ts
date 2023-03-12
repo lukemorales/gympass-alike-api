@@ -1,19 +1,23 @@
 import { ulid } from 'ulid';
-import { type PrismaClient } from '@prisma/client';
+import { Prisma, type PrismaClient } from '@prisma/client';
 
 import { prisma } from '@shared/prisma';
-import { A, O, pipe } from '@shared/effect';
+import { A, E, flow, O, pipe } from '@shared/effect';
 import { MAX_PAGE_SIZE } from '@shared/paginated-list';
 import { unprefixId } from '@shared/unprefix-id';
 import { type UserId } from '@features/users';
+import { ResourceNotFound } from '@shared/failures';
 
 import {
   type CreateCheckInOptions,
   type CheckInsRepository,
   type FindByMembershipAndDateOptions,
   type FindManyByUserIdOptions,
+  type UpdateCheckInOptions,
 } from './check-ins.repository';
 import { CheckInAdapter } from '../check-in.adapter';
+import { type CheckInId } from '../check-in.identifier';
+import { type CheckIn } from '../check-in.entity';
 
 export class CheckInsPrismaRepository implements CheckInsRepository {
   private readonly repository: PrismaClient['checkIn'];
@@ -32,6 +36,37 @@ export class CheckInsPrismaRepository implements CheckInsRepository {
     });
 
     return pipe(checkIn, CheckInAdapter.toDomain);
+  }
+
+  async findById(id: CheckInId) {
+    const user = await this.repository.findUnique({
+      where: { id: unprefixId(id) },
+    });
+
+    return pipe(user, O.fromNullable, O.map(CheckInAdapter.toDomain));
+  }
+
+  async update(
+    id: CheckInId,
+    options: UpdateCheckInOptions,
+  ): Promise<E.Either<ResourceNotFound, CheckIn>> {
+    return this.repository
+      .update({
+        where: { id: unprefixId(id) },
+        data: {
+          validated_at: pipe(options.validatedAt, O.getOrUndefined),
+        },
+      })
+      .then(flow(CheckInAdapter.toDomain, E.right))
+      .catch((error) => {
+        if (error instanceof Prisma.PrismaClientKnownRequestError) {
+          if (error.code === 'P2025') {
+            return E.left(new ResourceNotFound(id));
+          }
+        }
+
+        throw error;
+      });
   }
 
   async findByMembershipAndDate({
