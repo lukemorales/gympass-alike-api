@@ -17,15 +17,9 @@ describe('CreateCheckInService', () => {
 
   beforeEach(() => {
     clock = new Clock();
-    checkInsRepository = new CheckInsInMemoryRepository();
+    checkInsRepository = new CheckInsInMemoryRepository(clock);
     gymsRepository = new GymsInMemoryRepository();
     sut = new CreateCheckInService(clock, checkInsRepository, gymsRepository);
-
-    vi.useFakeTimers();
-  });
-
-  afterEach(() => {
-    vi.useRealTimers();
   });
 
   describe('execute', () => {
@@ -76,7 +70,8 @@ describe('CreateCheckInService', () => {
 
     it('fails with a "DuplicateCheckInNotAllowed" error if a previous check-in exists for the same day in the same gym', async () => {
       const date = new Date(2023, 2, 10, 8, 0, 0, 0);
-      vi.setSystemTime(date);
+
+      vi.spyOn(clock, 'now', 'get').mockReturnValue(date);
 
       await sut.execute({
         userId,
@@ -145,7 +140,9 @@ describe('CreateCheckInService', () => {
     });
 
     it('creates another check-in in the same day on a different gym', async () => {
-      vi.setSystemTime(new Date(2023, 2, 10, 8, 0, 0, 0));
+      vi.spyOn(clock, 'now', 'get').mockReturnValue(
+        new Date(2023, 2, 10, 8, 0, 0, 0),
+      );
 
       await sut.execute({
         userId,

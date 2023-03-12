@@ -2,23 +2,20 @@ import { ulid } from 'ulid';
 
 import { type GymId } from '@features/gyms';
 import { type UserId } from '@features/users';
+import { Clock } from '@features/clock';
 
 import { CheckInsInMemoryRepository } from './repositories';
 import { ListUserCheckInHistoryService } from './list-user-check-in-history.service';
 
 describe('ListUserCheckInHistoryService', () => {
+  let clock: Clock;
   let checkInsRepository: CheckInsInMemoryRepository;
   let sut: ListUserCheckInHistoryService;
 
   beforeEach(() => {
-    checkInsRepository = new CheckInsInMemoryRepository();
+    clock = new Clock();
+    checkInsRepository = new CheckInsInMemoryRepository(clock);
     sut = new ListUserCheckInHistoryService(checkInsRepository);
-
-    vi.useFakeTimers();
-  });
-
-  afterEach(() => {
-    vi.useRealTimers();
   });
 
   describe('execute', () => {
