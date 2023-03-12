@@ -9,6 +9,7 @@
     "start": "node build/server.js",
     "test": "doppler run --config test -- vitest --passWithNoTests",
     "test:ci": "pnpm run test:coverage --run",
+    "test:e2e": "doppler run --config test -- vitest -c vitest.e2e-config.ts --passWithNoTests",
     "test:coverage": "pnpm run test --coverage",
     "test:ui": "pnpm run test:coverage --ui"
   },
