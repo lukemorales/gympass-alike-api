@@ -424,6 +424,8 @@ module.exports = {
       files: ["**/*.spec.ts", "**/*.e2e-spec.ts"],
       rules: {
         "@typescript-eslint/no-unsafe-assignment": "off",
+        "@typescript-eslint/restrict-template-expressions": "off",
+        "@typescript-eslint/no-unsafe-member-access": "off",
 
         "jest/consistent-test-it": "error",
         "jest/expect-expect": [
