@@ -1,3 +1,4 @@
+import { type Coords } from './coords.schema';
 import { CreateGymService } from './create-gym.service';
 import { GymsInMemoryRepository } from './repositories/gyms.in-memory.repository';
 
@@ -19,7 +20,7 @@ describe('CreateGymService', () => {
         coords: {
           lat: 0.987654321,
           long: -0.987654321,
-        },
+        } as Coords,
       });
 
       expect(gym).toMatchObject({
