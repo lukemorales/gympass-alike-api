@@ -1,1 +1,1 @@
-export * from './sessions.controller';
+export * from './sessions.routes';

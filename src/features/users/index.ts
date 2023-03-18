@@ -3,4 +3,4 @@ export * from './repositories';
 export * from './user.adapter';
 export * from './user.entity';
 export * from './user.identifier';
-export * from './users.controller';
+export * from './users.routes';

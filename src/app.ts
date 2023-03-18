@@ -5,7 +5,7 @@ import { ZodError } from 'zod';
 import { fromZodError } from 'zod-validation-error';
 
 import { ENV } from './config/env';
-import { routes } from './routes';
+import { appRoutes } from './routes';
 
 export const app = fastify();
 
@@ -13,9 +13,7 @@ void app.register(fastifyJwt, {
   secret: ENV.JWT_SECRET,
 });
 
-routes.forEach(
-  ([controller, prefix]) => void app.register(controller, { prefix }),
-);
+void app.register(appRoutes);
 
 app.setErrorHandler((error, _request, reply) => {
   if (error instanceof ZodError) {

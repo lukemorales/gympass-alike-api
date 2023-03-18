@@ -1,50 +1,54 @@
-import { type FastifyInstance } from 'fastify';
+import { type FastifyReply, type FastifyRequest } from 'fastify';
 
 import { exhaustive } from 'exhaustive';
 
 import { E, pipe } from '@shared/effect';
-import { sessionsMiddleware } from '@shared/middlewares';
 
-import { createUserPayload } from './create-user.service';
+import {
+  createUserPayload,
+  type CreateUserService,
+} from './create-user.service';
 import { makeCreateUserService, makeGetUserService } from './factories';
 import { UserAdapter } from './user.adapter';
+import { type GetUserService } from './get-user.service';
 
-export async function usersController(app: FastifyInstance) {
-  app.get(
-    '/me',
-    { onRequest: [sessionsMiddleware] },
-    async (request, reply) => {
-      const getUserService = makeGetUserService();
+export class UsersController {
+  private readonly getUserService: GetUserService;
 
-      const result = await getUserService.execute({
-        id: request.user.sub,
-      });
+  private readonly createUserService: CreateUserService;
 
-      return pipe(
-        result,
-        E.match(
-          (error) =>
-            exhaustive.tag(error, 'tag', {
-              ResourceNotFound: ({ resourceId }) =>
-                reply.status(404).send({
-                  message: `User (${resourceId}) not found`,
-                }),
-            }),
-          (success) =>
-            reply.status(200).send({
-              user: pipe(success.user, UserAdapter.toJSON),
-            }),
-        ),
-      );
-    },
-  );
+  constructor() {
+    this.getUserService = makeGetUserService();
+    this.createUserService = makeCreateUserService();
+  }
 
-  app.post('/', async (request, reply) => {
+  async getMe(request: FastifyRequest, reply: FastifyReply) {
+    const result = await this.getUserService.execute({
+      id: request.user.sub,
+    });
+
+    return pipe(
+      result,
+      E.match(
+        (error) =>
+          exhaustive.tag(error, 'tag', {
+            ResourceNotFound: ({ resourceId }) =>
+              reply.status(404).send({
+                message: `User (${resourceId}) not found`,
+              }),
+          }),
+        (success) =>
+          reply.status(200).send({
+            user: pipe(success.user, UserAdapter.toJSON),
+          }),
+      ),
+    );
+  }
+
+  async create(request: FastifyRequest, reply: FastifyReply) {
     const payload = pipe(request.body, createUserPayload.parse);
 
-    const createUserService = makeCreateUserService();
-
-    const result = await createUserService.execute(payload);
+    const result = await this.createUserService.execute(payload);
 
     return pipe(
       result,
@@ -62,5 +66,5 @@ export async function usersController(app: FastifyInstance) {
           }),
       ),
     );
-  });
+  }
 }

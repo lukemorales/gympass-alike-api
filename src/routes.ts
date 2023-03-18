@@ -1,11 +1,13 @@
 import { type FastifyInstance } from 'fastify';
 
-import { sessionsController } from '@features/sessions';
-import { usersController } from '@features/users';
+import { sessionsRoutes } from '@features/sessions';
+import { usersRoutes } from '@features/users';
+import { gymRoutes } from '@features/gyms';
 
-type AppRoute = [(app: FastifyInstance) => Promise<void>, string];
+export async function appRoutes(app: FastifyInstance) {
+  void app.register(gymRoutes, { prefix: '/gyms' });
 
-export const routes: AppRoute[] = [
-  [usersController, '/users'],
-  [sessionsController, '/sessions'],
-];
+  void app.register(sessionsRoutes, { prefix: '/sessions' });
+
+  void app.register(usersRoutes, { prefix: '/users' });
+}
