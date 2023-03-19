@@ -1,4 +1,5 @@
 import { app } from 'src/app';
+import { setupUser } from '@tests/setup-user';
 import request from 'supertest';
 
 describe('UsersController | e2e', () => {
@@ -11,26 +12,11 @@ describe('UsersController | e2e', () => {
   });
 
   it('GET /me', async () => {
-    await request(app.server)
-      .post('/v1/users')
-      .send({
-        name: 'John Doe',
-        email: 'john@doe.com',
-        password: '123456',
-      })
-      .expect(201);
-
-    const authResponse = await request(app.server)
-      .post('/v1/sessions')
-      .send({
-        email: 'john@doe.com',
-        password: '123456',
-      })
-      .expect(200);
+    const { token } = await setupUser(app);
 
     const response = await request(app.server)
       .get('/v1/me')
-      .set('Authorization', `Bearer ${authResponse.body.token}`)
+      .set('Authorization', `Bearer ${token}`)
       .expect(200);
 
     expect(response.body).toEqual({

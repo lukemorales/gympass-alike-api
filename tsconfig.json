@@ -33,7 +33,8 @@
     "paths": {
       "@config/*": ["./src/config/*"],
       "@features/*": ["./src/features/*"],
-      "@shared/*": ["./src/shared/*"]
+      "@shared/*": ["./src/shared/*"],
+      "@tests/*": ["./src/tests/*"]
     },
     "types": ["vitest/globals"]
   },
