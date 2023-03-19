@@ -5,6 +5,7 @@ import { type Clock } from '@features/clock';
 import { GymId, type GymsRepository } from '@features/gyms';
 import { ResourceNotFound } from '@shared/failures';
 import { UserId } from '@features/users';
+import { Coords } from '@shared/coordinates.schema';
 
 import { type CheckInsRepository } from './repositories';
 import {
@@ -16,10 +17,7 @@ import { type CheckIn } from './check-in.entity';
 export const createCheckInPayload = z.object({
   gymId: GymId,
   userId: UserId,
-  coords: z.object({
-    lat: z.number(),
-    long: z.number(),
-  }),
+  coords: Coords,
 });
 
 type CreateCheckInPayload = z.infer<typeof createCheckInPayload>;
