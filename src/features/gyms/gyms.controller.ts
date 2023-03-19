@@ -42,7 +42,7 @@ export class GymsController {
   }
 
   async getNearby(request: FastifyRequest, reply: FastifyReply) {
-    const payload = pipe(request.params, getNearbyGymsPayload.parse);
+    const payload = pipe(request.query, getNearbyGymsPayload.parse);
 
     const { items, metadata } = await this.getNearbyGymsService.execute(
       payload,
@@ -55,7 +55,7 @@ export class GymsController {
   }
 
   async search(request: FastifyRequest, reply: FastifyReply) {
-    const payload = pipe(request.params, searchGymsPayload.parse);
+    const payload = pipe(request.query, searchGymsPayload.parse);
 
     const { items, metadata } = await this.searchGymsService.execute(payload);
 

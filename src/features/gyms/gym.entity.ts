@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-import { Coords } from './coords.schema';
+import { Coords } from '../../shared/coordinates.schema';
 import { GymId } from './gym.identifier';
 
 const GymEntity = z.object({
@@ -8,7 +8,7 @@ const GymEntity = z.object({
   name: z.string().min(1),
   description: z.string().min(1).nullable(),
   phone: z.string().min(1).nullable(),
-  coords: Coords.strict(),
+  coords: Coords,
   updatedAt: z.date(),
   createdAt: z.date(),
 });
@@ -26,7 +26,7 @@ export class Gym implements GymEntity {
 
   phone: string | null;
 
-  coords: Record<'lat' | 'long', number>;
+  coords: Coords;
 
   updatedAt: Date;
 

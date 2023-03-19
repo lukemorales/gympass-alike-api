@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-import { Coords } from './coords.schema';
+import { Coords } from '../../shared/coordinates.schema';
 import { type Gym } from './gym.entity';
 import { type GymsRepository } from './repositories';
 

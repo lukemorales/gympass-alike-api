@@ -4,7 +4,7 @@ import { PaginatedList } from '@shared/paginated-list';
 
 import { type Gym } from './gym.entity';
 import { type GymsRepository } from './repositories';
-import { Coords } from './coords.schema';
+import { Coords } from '../../shared/coordinates.schema';
 import { GymId } from './gym.identifier';
 
 export const getNearbyGymsPayload = z.object({

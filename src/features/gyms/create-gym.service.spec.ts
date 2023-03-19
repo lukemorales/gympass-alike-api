@@ -1,4 +1,4 @@
-import { type Coords } from './coords.schema';
+import { type Coords } from '../../shared/coordinates.schema';
 import { CreateGymService } from './create-gym.service';
 import { GymsInMemoryRepository } from './repositories/gyms.in-memory.repository';
 

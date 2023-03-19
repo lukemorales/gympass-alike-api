@@ -1,17 +1,11 @@
-type Coordinate = {
-  lat: number;
-  long: number;
-};
+import { type Coords } from './coordinates.schema';
 
 export const MAX_DISTANCE_FROM_GYM_IN_KILOMETERS = 0.1;
 
 export const MAX_GYM_SEARCH_RADIUS_IN_KILOMETERS =
   MAX_DISTANCE_FROM_GYM_IN_KILOMETERS * 100;
 
-export function getDistanceBetweenCoordinates(
-  from: Coordinate,
-  to: Coordinate,
-) {
+export function getDistanceBetweenCoordinates(from: Coords, to: Coords) {
   if (from.lat === to.lat && from.long === to.long) {
     return 0;
   }
