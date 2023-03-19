@@ -13,7 +13,7 @@ void app.register(fastifyJwt, {
   secret: ENV.JWT_SECRET,
 });
 
-void app.register(appRoutes);
+void app.register(appRoutes, { prefix: '/v1' });
 
 app.setErrorHandler((error, _request, reply) => {
   if (error instanceof ZodError) {

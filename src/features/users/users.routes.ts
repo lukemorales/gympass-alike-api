@@ -7,7 +7,10 @@ import { UsersController } from './users.controller';
 export async function usersRoutes(app: FastifyInstance) {
   const usersController = new UsersController();
 
-  app.get('/me', { onRequest: [sessionsMiddleware] }, usersController.getMe);
+  app.post('/users', usersController.create);
 
-  app.post('/', usersController.create);
+  // Authenticated routes
+  app.addHook('onRequest', sessionsMiddleware);
+
+  app.get('/me', usersController.getMe);
 }

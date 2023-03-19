@@ -5,5 +5,5 @@ import { SessionsController } from './sessions.controller';
 export async function sessionsRoutes(app: FastifyInstance) {
   const sessionsController = new SessionsController();
 
-  app.post('/', sessionsController.create);
+  app.post('/sessions', sessionsController.create);
 }

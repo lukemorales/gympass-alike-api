@@ -9,5 +9,5 @@ export async function userMetricsRoutes(app: FastifyInstance) {
 
   const userMetricsController = new UserMetricsController();
 
-  app.get('/users/me/metrics', userMetricsController.generate);
+  app.get('/me/metrics', userMetricsController.generate);
 }

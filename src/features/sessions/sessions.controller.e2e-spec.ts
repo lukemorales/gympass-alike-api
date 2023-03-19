@@ -12,7 +12,7 @@ describe('SessionsController | e2e', () => {
 
   it('POST /', async () => {
     await request(app.server)
-      .post('/users')
+      .post('/v1/users')
       .send({
         name: 'John Doe',
         email: 'john@doe.com',
@@ -21,7 +21,7 @@ describe('SessionsController | e2e', () => {
       .expect(201);
 
     const response = await request(app.server)
-      .post('/sessions')
+      .post('/v1/sessions')
       .send({
         email: 'john@doe.com',
         password: '123456',

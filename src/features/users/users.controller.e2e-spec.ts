@@ -12,7 +12,7 @@ describe('UsersController | e2e', () => {
 
   it('GET /me', async () => {
     await request(app.server)
-      .post('/users')
+      .post('/v1/users')
       .send({
         name: 'John Doe',
         email: 'john@doe.com',
@@ -21,7 +21,7 @@ describe('UsersController | e2e', () => {
       .expect(201);
 
     const authResponse = await request(app.server)
-      .post('/sessions')
+      .post('/v1/sessions')
       .send({
         email: 'john@doe.com',
         password: '123456',
@@ -29,7 +29,7 @@ describe('UsersController | e2e', () => {
       .expect(200);
 
     const response = await request(app.server)
-      .get('/users/me')
+      .get('/v1/me')
       .set('Authorization', `Bearer ${authResponse.body.token}`)
       .expect(200);
 
@@ -43,7 +43,7 @@ describe('UsersController | e2e', () => {
 
   it('POST /', async () => {
     await request(app.server)
-      .post('/users')
+      .post('/v1/users')
       .send({
         name: 'John Doe',
         email: 'johndoe@example.com',

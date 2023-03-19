@@ -9,9 +9,9 @@ export async function gymRoutes(app: FastifyInstance) {
 
   const gymsController = new GymsController();
 
-  app.get('/search', gymsController.search);
+  app.post('/gyms', gymsController.create);
 
-  app.get('/nearby', gymsController.getNearby);
+  app.get('/gyms/search', gymsController.search);
 
-  app.post('/', gymsController.create);
+  app.get('/gyms/nearby', gymsController.getNearby);
 }

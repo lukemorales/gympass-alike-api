@@ -7,11 +7,11 @@ import { userMetricsRoutes } from '@features/user-metrics';
 import { checkInsRoutes } from '@features/check-ins';
 
 export async function appRoutes(app: FastifyInstance) {
-  void app.register(gymRoutes, { prefix: '/gyms' });
+  void app.register(gymRoutes);
 
-  void app.register(sessionsRoutes, { prefix: '/sessions' });
+  void app.register(sessionsRoutes);
 
-  void app.register(usersRoutes, { prefix: '/users' });
+  void app.register(usersRoutes);
 
   void app.register(checkInsRoutes);
 
