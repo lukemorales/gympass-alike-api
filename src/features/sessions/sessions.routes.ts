@@ -6,4 +6,6 @@ export async function sessionsRoutes(app: FastifyInstance) {
   const sessionsController = new SessionsController();
 
   app.post('/sessions', sessionsController.create);
+
+  app.patch('/sessions', sessionsController.revalidate);
 }
