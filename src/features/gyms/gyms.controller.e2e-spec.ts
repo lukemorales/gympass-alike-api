@@ -13,7 +13,9 @@ describe('GymsController | e2e', () => {
   });
 
   it('POST /', async () => {
-    const { token } = await setupUser(app);
+    const { token } = await setupUser(app, {
+      user: { role: 'ADMIN' },
+    });
 
     const response = await request(app.server)
       .post('/v1/gyms')
@@ -37,7 +39,9 @@ describe('GymsController | e2e', () => {
   });
 
   it('GET /search', async () => {
-    const { token } = await setupUser(app);
+    const { token } = await setupUser(app, {
+      user: { role: 'ADMIN' },
+    });
 
     await request(app.server)
       .post('/v1/gyms')
@@ -103,7 +107,9 @@ describe('GymsController | e2e', () => {
       long: -0.123456789,
     };
 
-    const { token } = await setupUser(app);
+    const { token } = await setupUser(app, {
+      user: { role: 'ADMIN' },
+    });
 
     await request(app.server)
       .post('/v1/gyms')

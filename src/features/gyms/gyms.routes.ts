@@ -1,6 +1,9 @@
 import { type FastifyInstance } from 'fastify';
 
-import { sessionsMiddleware } from '@shared/middlewares';
+import {
+  sessionsMiddleware,
+  verifyUserRoleMiddleware,
+} from '@shared/middlewares';
 
 import { GymsController } from './gyms.controller';
 
@@ -9,7 +12,11 @@ export async function gymRoutes(app: FastifyInstance) {
 
   const gymsController = new GymsController();
 
-  app.post('/gyms', gymsController.create);
+  app.post(
+    '/gyms',
+    { onRequest: [verifyUserRoleMiddleware(['Admin'])] },
+    gymsController.create,
+  );
 
   app.get('/gyms/search', gymsController.search);
 

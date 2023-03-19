@@ -12,7 +12,9 @@ describe('UserMetricsController | e2e', () => {
   });
 
   it('GET /me/metrics', async () => {
-    const { token } = await setupUser(app);
+    const { token } = await setupUser(app, {
+      user: { role: 'ADMIN' },
+    });
 
     const { body } = await request(app.server)
       .post('/v1/gyms')

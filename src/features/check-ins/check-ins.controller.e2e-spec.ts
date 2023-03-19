@@ -23,7 +23,9 @@ describe('CheckInsController | e2e', () => {
   });
 
   it('GET /history', async () => {
-    const { token } = await setupUser(app);
+    const { token } = await setupUser(app, {
+      user: { role: 'ADMIN' },
+    });
 
     const { body } = await request(app.server)
       .post('/v1/gyms')
@@ -113,7 +115,9 @@ describe('CheckInsController | e2e', () => {
   });
 
   it('PATCH /check-ins/:checkInId/validate', async () => {
-    const { token } = await setupUser(app);
+    const { token } = await setupUser(app, {
+      user: { role: 'ADMIN' },
+    });
 
     const { body: gymBody } = await request(app.server)
       .post('/v1/gyms')
