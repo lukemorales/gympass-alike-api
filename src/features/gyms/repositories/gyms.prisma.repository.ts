@@ -60,16 +60,28 @@ export class GymsPrismaRepository implements GymsRepository {
   }
 
   async findManyByCoords({ coords, cursor }: FindManyByCoordsOptions) {
+    if (cursor) {
+      const gyms = await prisma.$queryRaw<Gym[]>(Prisma.sql`
+      SELECT * from gyms
+      WHERE id > ${unprefixId(cursor)}
+      AND WHERE ( 6371 * acos( cos( radians(${
+        coords.lat
+      }) ) * cos( radians( latitude ) ) * cos( radians( longitude ) - radians(${
+        coords.long
+      }) ) + sin( radians(${
+        coords.lat
+      }) ) * sin( radians( latitude ) ) ) ) <= ${MAX_GYM_SEARCH_RADIUS_IN_KILOMETERS}
+      ORDER BY id ASC
+      LIMIT ${MAX_PAGE_SIZE}
+    `);
+
+      return pipe(gyms, A.map(GymAdapter.toDomain));
+    }
+
     const gyms = await prisma.$queryRaw<Gym[]>(Prisma.sql`
     SELECT * from gyms
-    WHERE ( 6371 * acos( cos( radians(${
-      coords.lat
-    }) ) * cos( radians( latitude ) ) * cos( radians( longitude ) - radians(${
-      coords.long
-    }) ) + sin( radians(${
-      coords.lat
-    }) ) * sin( radians( latitude ) ) ) ) <= ${MAX_GYM_SEARCH_RADIUS_IN_KILOMETERS}
-    ${cursor ? `AND WHERE id > ${unprefixId(cursor)}` : ''}
+    WHERE latitude = ${coords.lat} AND longitude = ${coords.long}
+    OR ( 6371 * acos( cos( radians(${coords.lat}) ) * cos( radians( latitude ) ) * cos( radians( longitude ) - radians(${coords.long}) ) + sin( radians(${coords.lat}) ) * sin( radians( latitude ) ) ) ) <= ${MAX_GYM_SEARCH_RADIUS_IN_KILOMETERS}
     ORDER BY id ASC
     LIMIT ${MAX_PAGE_SIZE}
   `);

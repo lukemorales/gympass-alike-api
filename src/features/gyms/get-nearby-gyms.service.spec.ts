@@ -1,6 +1,7 @@
 import { addKilometersToCoords } from 'src/tests/utils';
 
 import { GymsInMemoryRepository } from '@features/gyms';
+import { type Coords } from '@shared/coordinates.schema';
 
 import { GetNearbyGymsService } from './get-nearby-gyms.service';
 
@@ -18,7 +19,7 @@ describe('GetNearbyGymsService', () => {
       const baseCoords = {
         lat: 0.987654321,
         long: -0.987654321,
-      };
+      } as Coords;
 
       for (let i = 0; i <= 3; i++) {
         const distantCoords = addKilometersToCoords(15, baseCoords);
@@ -70,7 +71,7 @@ describe('GetNearbyGymsService', () => {
       const baseCoords = {
         lat: 0.987654321,
         long: -0.987654321,
-      };
+      } as Coords;
 
       for (let i = 1; i < 20; i++) {
         await gymsRepository.create({

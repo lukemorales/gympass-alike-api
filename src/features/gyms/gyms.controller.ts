@@ -3,6 +3,7 @@ import { type FastifyReply, type FastifyRequest } from 'fastify';
 import autoBind from 'auto-bind';
 
 import { A, pipe } from '@shared/effect';
+import { Coords } from '@shared/coordinates.schema';
 
 import { createGymPayload, type CreateGymService } from './create-gym.service';
 import {
@@ -46,7 +47,20 @@ export class GymsController {
   }
 
   async getNearby(request: FastifyRequest, reply: FastifyReply) {
-    const payload = pipe(request.query, getNearbyGymsPayload.parse);
+    const payload = pipe(
+      request.query,
+      getNearbyGymsPayload
+        .pick({ cursor: true })
+        .merge(Coords.unwrap())
+        .transform((values) => {
+          const { cursor, ...coords } = values;
+
+          return {
+            cursor,
+            coords: coords as Coords,
+          };
+        }).parse,
+    );
 
     const { items, metadata } = await this.#getNearbyGymsService.execute(
       payload,
