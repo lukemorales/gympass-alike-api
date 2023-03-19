@@ -96,7 +96,7 @@ export class CheckInsPrismaRepository implements CheckInsRepository {
   async findManyByUserId({ userId, cursor }: FindManyByUserIdOptions) {
     const checkIns = await this.repository.findMany({
       where: { user_id: unprefixId(userId) },
-      cursor: { id: cursor ? unprefixId(cursor) : undefined },
+      cursor: cursor ? { id: unprefixId(cursor) } : undefined,
       orderBy: { id: 'asc' },
       skip: cursor ? 1 : undefined,
       take: MAX_PAGE_SIZE,

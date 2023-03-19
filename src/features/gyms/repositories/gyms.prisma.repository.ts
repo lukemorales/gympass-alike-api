@@ -50,7 +50,7 @@ export class GymsPrismaRepository implements GymsRepository {
           mode: 'insensitive',
         },
       },
-      cursor: { id: cursor ? unprefixId(cursor) : undefined },
+      cursor: cursor ? { id: unprefixId(cursor) } : undefined,
       orderBy: { id: 'asc' },
       skip: cursor ? 1 : undefined,
       take: MAX_PAGE_SIZE,
