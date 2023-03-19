@@ -8,8 +8,7 @@ export default defineConfig({
   test: {
     globals: true,
     environment: 'node',
-    include: ['src/**/*.e2e-spec.ts', 'src/**/*.spec.ts'],
-    environmentMatchGlobs: [['src/**/*.e2e-spec.ts', 'prisma']],
+    include: ['src/**/*.spec.ts'],
     exclude: [
       '**/node_modules/**',
       'src/**/dist/**',
