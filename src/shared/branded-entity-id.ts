@@ -35,7 +35,7 @@ export const brandedEntityId = <Entity extends string>(
         const [prefixOrId] = pieces;
         const valueHasEntityPrefix = pieces.length !== 1;
 
-        if (valueHasEntityPrefix && prefixOrId !== brandedPrefix) {
+        if (valueHasEntityPrefix && !brandedPrefix.startsWith(prefixOrId)) {
           ctx.addIssue({
             code: z.ZodIssueCode.invalid_string,
             validation: 'regex',
