@@ -7,6 +7,7 @@
     "build": "tsup",
     "dev": "doppler run -- tsx watch src/server.ts",
     "start": "node build/server.js",
+    "migrate:dev": "doppler run --config test -- prisma migrate dev",
     "test": "doppler run --config test -- vitest --passWithNoTests",
     "test:ci": "pnpm run test:coverage --run",
     "test:e2e": "doppler run --config test -- vitest -c vitest.e2e-config.ts --passWithNoTests",
