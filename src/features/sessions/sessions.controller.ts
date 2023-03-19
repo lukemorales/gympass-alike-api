@@ -1,6 +1,7 @@
 import { type FastifyReply, type FastifyRequest } from 'fastify';
 
 import { exhaustive } from 'exhaustive';
+import autoBind from 'auto-bind';
 
 import { E, pipe } from '@shared/effect';
 
@@ -11,16 +12,18 @@ import {
 import { makeCreateSessionService } from './factories';
 
 export class SessionsController {
-  private readonly createSessionService: CreateSessionService;
+  readonly #createSessionService: CreateSessionService;
 
   constructor() {
-    this.createSessionService = makeCreateSessionService();
+    this.#createSessionService = makeCreateSessionService();
+
+    autoBind(this);
   }
 
   async create(request: FastifyRequest, reply: FastifyReply) {
     const payload = pipe(request.body, createSessionPayload.parse);
 
-    const result = await this.createSessionService.execute(payload);
+    const result = await this.#createSessionService.execute(payload);
 
     if (E.isLeft(result)) {
       return exhaustive.tag(result.left, 'tag', {

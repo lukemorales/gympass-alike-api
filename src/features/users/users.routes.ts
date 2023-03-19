@@ -9,8 +9,5 @@ export async function usersRoutes(app: FastifyInstance) {
 
   app.post('/users', usersController.create);
 
-  // Authenticated routes
-  app.addHook('onRequest', sessionsMiddleware);
-
-  app.get('/me', usersController.getMe);
+  app.get('/me', { preHandler: [sessionsMiddleware] }, usersController.getMe);
 }

@@ -11,6 +11,7 @@ specifiers:
   '@typescript-eslint/parser': ^5.55.0
   '@vitest/coverage-c8': ^0.29.3
   '@vitest/ui': ^0.29.3
+  auto-bind: ^5.0.1
   bcryptjs: ^2.4.3
   dayjs: ^1.11.7
   dotenv: ^16.0.3
@@ -44,6 +45,7 @@ dependencies:
   '@effect/data': 0.5.0
   '@fastify/jwt': 6.7.1
   '@prisma/client': 4.11.0_prisma@4.11.0
+  auto-bind: 5.0.1
   bcryptjs: 2.4.3
   dayjs: 1.11.7
   dotenv: 16.0.3
@@ -955,6 +957,11 @@ packages:
   /atomic-sleep/1.0.0:
     resolution: {integrity: sha512-kNOjDqAh7px0XWNI+4QbzoiR/nTkHAWNud2uvnJquD1/x5a7EQZMJT0AczqK0Qn67oY/TTQ1LbUKajZpp3I9tQ==}
     engines: {node: '>=8.0.0'}
+    dev: false
+
+  /auto-bind/5.0.1:
+    resolution: {integrity: sha512-ooviqdwwgfIfNmDwo94wlshcdzfO64XV0Cg6oDsDYBJfITDz1EngD2z7DkbvCWn+XIMsIqW27sEVF6qcpJrRcg==}
+    engines: {node: ^12.20.0 || ^14.13.1 || >=16.0.0}
     dev: false
 
   /available-typed-arrays/1.0.5:

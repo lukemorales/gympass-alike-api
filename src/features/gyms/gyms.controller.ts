@@ -1,5 +1,7 @@
 import { type FastifyReply, type FastifyRequest } from 'fastify';
 
+import autoBind from 'auto-bind';
+
 import { A, pipe } from '@shared/effect';
 
 import { createGymPayload, type CreateGymService } from './create-gym.service';
@@ -19,22 +21,24 @@ import {
 } from './get-nearby-gyms.service';
 
 export class GymsController {
-  private readonly createGymService: CreateGymService;
+  readonly #createGymService: CreateGymService;
 
-  private readonly getNearbyGymsService: GetNearbyGymsService;
+  readonly #getNearbyGymsService: GetNearbyGymsService;
 
-  private readonly searchGymsService: SearchGymsService;
+  readonly #searchGymsService: SearchGymsService;
 
   constructor() {
-    this.createGymService = makeCreateGymService();
-    this.getNearbyGymsService = makeGetNearbyGymsService();
-    this.searchGymsService = makeSearchGymsService();
+    this.#createGymService = makeCreateGymService();
+    this.#getNearbyGymsService = makeGetNearbyGymsService();
+    this.#searchGymsService = makeSearchGymsService();
+
+    autoBind(this);
   }
 
   async create(request: FastifyRequest, reply: FastifyReply) {
     const payload = pipe(request.body, createGymPayload.parse);
 
-    const gym = await this.createGymService.execute(payload);
+    const gym = await this.#createGymService.execute(payload);
 
     return reply.status(201).send({
       gym: pipe(gym, GymAdapter.toJSON),
@@ -44,7 +48,7 @@ export class GymsController {
   async getNearby(request: FastifyRequest, reply: FastifyReply) {
     const payload = pipe(request.query, getNearbyGymsPayload.parse);
 
-    const { items, metadata } = await this.getNearbyGymsService.execute(
+    const { items, metadata } = await this.#getNearbyGymsService.execute(
       payload,
     );
 
@@ -57,7 +61,7 @@ export class GymsController {
   async search(request: FastifyRequest, reply: FastifyReply) {
     const payload = pipe(request.query, searchGymsPayload.parse);
 
-    const { items, metadata } = await this.searchGymsService.execute(payload);
+    const { items, metadata } = await this.#searchGymsService.execute(payload);
 
     return reply.status(200).send({
       items: pipe(items, A.map(GymAdapter.toJSON)),

@@ -1,6 +1,7 @@
 import { type FastifyReply, type FastifyRequest } from 'fastify';
 
 import { exhaustive } from 'exhaustive';
+import autoBind from 'auto-bind';
 
 import { E, pipe } from '@shared/effect';
 
@@ -13,17 +14,19 @@ import { UserAdapter } from './user.adapter';
 import { type GetUserService } from './get-user.service';
 
 export class UsersController {
-  private readonly getUserService: GetUserService;
+  readonly #getUserService: GetUserService;
 
-  private readonly createUserService: CreateUserService;
+  readonly #createUserService: CreateUserService;
 
   constructor() {
-    this.getUserService = makeGetUserService();
-    this.createUserService = makeCreateUserService();
+    this.#getUserService = makeGetUserService();
+    this.#createUserService = makeCreateUserService();
+
+    autoBind(this);
   }
 
   async getMe(request: FastifyRequest, reply: FastifyReply) {
-    const result = await this.getUserService.execute({
+    const result = await this.#getUserService.execute({
       id: request.user.sub,
     });
 
@@ -48,7 +51,7 @@ export class UsersController {
   async create(request: FastifyRequest, reply: FastifyReply) {
     const payload = pipe(request.body, createUserPayload.parse);
 
-    const result = await this.createUserService.execute(payload);
+    const result = await this.#createUserService.execute(payload);
 
     return pipe(
       result,

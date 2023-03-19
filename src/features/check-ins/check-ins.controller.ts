@@ -2,6 +2,7 @@ import { type FastifyReply, type FastifyRequest } from 'fastify';
 
 import { exhaustive } from 'exhaustive';
 import { z } from 'zod';
+import autoBind from 'auto-bind';
 
 import { A, E, pipe } from '@shared/effect';
 import { GymId } from '@features/gyms';
@@ -26,16 +27,18 @@ import {
 import { CheckInAdapter } from './check-in.adapter';
 
 export class CheckInsController {
-  private readonly createCheckInService: CreateCheckInService;
+  readonly #createCheckInService: CreateCheckInService;
 
-  private readonly listUserCheckInHistoryService: ListUserCheckInHistoryService;
+  readonly #listUserCheckInHistoryService: ListUserCheckInHistoryService;
 
-  private readonly validateCheckInService: ValidateCheckInService;
+  readonly #validateCheckInService: ValidateCheckInService;
 
   constructor() {
-    this.createCheckInService = makeCreateCheckInService();
-    this.listUserCheckInHistoryService = makeListUserCheckInHistoryService();
-    this.validateCheckInService = makeValidateCheckInService();
+    this.#createCheckInService = makeCreateCheckInService();
+    this.#listUserCheckInHistoryService = makeListUserCheckInHistoryService();
+    this.#validateCheckInService = makeValidateCheckInService();
+
+    autoBind(this);
   }
 
   async getHistory(request: FastifyRequest, reply: FastifyReply) {
@@ -45,7 +48,7 @@ export class CheckInsController {
     );
 
     const { items, metadata } =
-      await this.listUserCheckInHistoryService.execute({
+      await this.#listUserCheckInHistoryService.execute({
         userId: request.user.sub,
         cursor,
       });
@@ -64,7 +67,7 @@ export class CheckInsController {
       createCheckInPayload.pick({ coords: true }).parse,
     );
 
-    const result = await this.createCheckInService.execute({
+    const result = await this.#createCheckInService.execute({
       gymId: params.gymId,
       userId: request.user.sub,
       coords,
@@ -99,7 +102,7 @@ export class CheckInsController {
   async validate(request: FastifyRequest, reply: FastifyReply) {
     const payload = pipe(request.params, validateCheckInPayload.parse);
 
-    const result = await this.validateCheckInService.execute(payload);
+    const result = await this.#validateCheckInService.execute(payload);
 
     return pipe(
       result,
