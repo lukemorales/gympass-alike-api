@@ -11,6 +11,7 @@ import {
 } from './users.repository';
 import { UserAdapter } from '../user.adapter';
 import { type UserId } from '../user.identifier';
+import { DatabaseUserRole } from '../user.entity';
 
 export class UsersInMemoryRepository implements UsersRepository {
   readonly repository: User[] = [];
@@ -20,6 +21,7 @@ export class UsersInMemoryRepository implements UsersRepository {
       id: ulid(),
       name,
       email,
+      role: DatabaseUserRole.enum.MEMBER,
       password_hash: passwordHash,
       updated_at: new Date(),
       created_at: new Date(),

@@ -1,0 +1,43 @@
+name: E2E Integration
+
+on: [pull_request]
+
+jobs:
+  integration-tests:
+    name: 🧪 Test app integration
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: bitnami/postgresql
+        ports:
+          - 5432:5432
+        env:
+          POSTGRESQL_USERNAME: docker
+          POSTGRESQL_PASSWORD: docker
+          POSTGRESQL_DATABASE: gympass-api
+
+    steps:
+      - name: 🔑 Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: 🔧 Install PNPM
+        uses: pnpm/action-setup@v2.2.4
+        with:
+          version: 7
+
+      - name: 🛠️ Setup Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - name: 📦 Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: 🧪 Run tests
+        run: pnpm run test:e2e:ci
+        env:
+          NODE_ENV: test
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          PORT: ${{ secrets.PORT }}
