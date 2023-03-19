@@ -34,10 +34,13 @@ export class SessionsController {
 
     const { user } = result.right;
 
-    const token = await reply.jwtSign({}, { sign: { sub: user.id } });
+    const token = await reply.jwtSign(
+      { role: user.role },
+      { sign: { sub: user.id } },
+    );
 
     const refreshToken = await reply.jwtSign(
-      {},
+      { role: user.role },
       {
         sign: {
           sub: user.id,
@@ -60,13 +63,15 @@ export class SessionsController {
   async revalidate(request: FastifyRequest, reply: FastifyReply) {
     await request.jwtVerify({ onlyCookie: true });
 
-    const token = await reply.jwtSign({}, { sign: { sub: request.user.sub } });
+    const { sub, role } = request.user;
+
+    const token = await reply.jwtSign({ role }, { sign: { sub } });
 
     const refreshToken = await reply.jwtSign(
-      {},
+      { role },
       {
         sign: {
-          sub: request.user.sub,
+          sub,
           expiresIn: '7d',
         },
       },

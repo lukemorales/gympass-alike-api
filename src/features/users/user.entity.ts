@@ -4,10 +4,19 @@ import { Email, HashedPassword } from '@shared/branded-types';
 
 import { UserId } from './user.identifier';
 
+export const DatabaseUserRole = z.enum(['ADMIN', 'MEMBER']);
+
+export type DatabaseUserRole = z.infer<typeof DatabaseUserRole>;
+
+export const UserRole = z.enum(['Admin', 'Member']);
+
+export type UserRole = z.infer<typeof UserRole>;
+
 const UserEntity = z.object({
   id: UserId,
   name: z.string().min(1),
   email: Email,
+  role: UserRole,
   updatedAt: z.date(),
   createdAt: z.date(),
   _passwordHash: HashedPassword,
@@ -23,6 +32,8 @@ export class User implements UserEntity {
   name: string;
 
   email: Email;
+
+  role: UserRole;
 
   updatedAt: Date;
 
